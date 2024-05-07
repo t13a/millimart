@@ -8,6 +8,8 @@
     "dev:server": "cd packages/millimart-server && npm run dev",
     "build": "concurrently -m 1 npm:build:*",
     "build:client": "cd packages/millimart-client && npm run build",
+    "build:kernel": "cd packages/millimart-kernel && npm run build",
+    "build:server": "cd packages/millimart-server && npm run build",
     "test": "vitest run",
     "test:client": "vitest run packages/millimart-client",
     "test:kernel": "vitest run packages/millimart-kernel",
