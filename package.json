@@ -1,0 +1,30 @@
+{
+  "name": "millimart",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently npm:dev:*",
+    "dev:client": "cd packages/millimart-client && npm run dev",
+    "dev:server": "cd packages/millimart-server && npm run dev",
+    "build": "concurrently -m 1 npm:build:*",
+    "build:client": "cd packages/millimart-client && npm run build",
+    "test": "vitest run",
+    "test:client": "vitest run packages/millimart-client",
+    "test:kernel": "vitest run packages/millimart-kernel",
+    "test:server": "vitest run packages/millimart-server",
+    "fmt": "concurrently npm:fmt:*",
+    "fmt:prettier": "prettier --write .",
+    "lint": "concurrently npm:lint:*",
+    "lint:prettier": "prettier --check ."
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier-plugin-organize-imports": "^3.2.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "prettier": "^3.2.5"
+  }
+}

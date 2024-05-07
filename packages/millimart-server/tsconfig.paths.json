@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@millimart-kernel": ["../millimart-kernel/src/index.ts"],
+      "@millimart-kernel/*": ["../millimart-kernel/src/*"]
+    }
+  }
+}

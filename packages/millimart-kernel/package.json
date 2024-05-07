@@ -1,0 +1,10 @@
+{
+  "name": "millimart-kernel",
+  "private": true,
+  "type": "module",
+  "scripts": {},
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  }
+}
