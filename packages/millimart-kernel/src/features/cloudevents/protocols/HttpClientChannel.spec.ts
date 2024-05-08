@@ -57,9 +57,7 @@ describe("HttpClientChannel", () => {
 
   describe("send", () => {
     it("sends an event as HTTP request", async () => {
-      const channel = new HttpClientChannel<CloudEvent>(
-        `http://localhost:${port}`,
-      );
+      const channel = new HttpClientChannel(`http://localhost:${port}`);
 
       await channel.send(reqEvent);
 
@@ -87,13 +85,10 @@ describe("HttpClientChannel", () => {
   describe("receive", () => {
     it("receives an event as HTTP response", async () => {
       const result: CloudEvent[] = [];
-      const channel = new HttpClientChannel<CloudEvent>(
-        `http://localhost:${port}`,
-        {
-          receive: true,
-          schema: CloudEventSchema,
-        },
-      );
+      const channel = new HttpClientChannel(`http://localhost:${port}`, {
+        receive: true,
+        schema: CloudEventSchema,
+      });
       channel.receive((e) => result.push(e));
 
       await channel.send(reqEvent);
