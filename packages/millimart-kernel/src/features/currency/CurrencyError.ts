@@ -11,20 +11,12 @@ export type CurrencyErrorDataMap = {
   };
 };
 
-export type CurrencyErrorName = keyof CurrencyErrorDataMap;
-
-export interface CurrencyErrorInterface<T extends CurrencyErrorName> {
-  readonly name: T;
-  readonly data: CurrencyErrorDataMap[T];
-}
-
-export class CurrencyError<T extends CurrencyErrorName>
-  extends Error
-  implements CurrencyErrorInterface<T>
-{
+export class CurrencyError<
+  Type extends keyof CurrencyErrorDataMap,
+> extends Error {
   constructor(
-    readonly name: T,
-    readonly data: CurrencyErrorDataMap[T],
+    readonly type: Type,
+    readonly data: CurrencyErrorDataMap[Type],
     message?: string,
     options?: ErrorOptions,
   ) {

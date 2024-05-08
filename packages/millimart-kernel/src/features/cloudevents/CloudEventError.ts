@@ -1,6 +1,6 @@
 import { Message } from "cloudevents";
 
-export type CloudEventErrorMap = {
+export type CloudEventErrorDataMap = {
   NoCloudEventError: {
     message: Message;
   };
@@ -8,11 +8,11 @@ export type CloudEventErrorMap = {
 };
 
 export class CloudEventError<
-  Name extends keyof CloudEventErrorMap,
+  Type extends keyof CloudEventErrorDataMap,
 > extends Error {
   constructor(
-    readonly name: Name,
-    readonly data: CloudEventErrorMap[Name],
+    readonly type: Type,
+    readonly data: CloudEventErrorDataMap[Type],
     message?: string,
     options?: ErrorOptions,
   ) {
