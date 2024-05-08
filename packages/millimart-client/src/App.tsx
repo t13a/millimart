@@ -1,4 +1,4 @@
-import { ex } from "@millimart-kernel";
+import { ex } from "millimart-kernel";
 
 function App() {
   return (

@@ -1,5 +1,5 @@
-import { ex } from "@millimart-kernel";
 import express, { Router } from "express";
+import { ex } from "millimart-kernel";
 
 export const ExampleRouter = (): Router => {
   const router = express.Router();
