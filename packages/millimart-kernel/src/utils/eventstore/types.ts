@@ -14,5 +14,6 @@ export interface ReadOnlyEventStore<T> {
 export type EventStoreReadOptions = {
   fromEventId?: string;
   toEventId?: string;
+  skipCount?: number;
   maxCount?: number;
 };

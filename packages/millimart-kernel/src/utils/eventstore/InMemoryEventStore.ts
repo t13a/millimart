@@ -1,3 +1,4 @@
+import assert from "assert";
 import { EventStoreError } from "./EventStoreError";
 import { EventStore, EventStoreReadOptions } from "./types";
 
@@ -38,12 +39,16 @@ export class InMemoryEventStore<T> implements EventStore<T> {
         ? this.indexOf(options.toEventId)
         : this.events.length - 1;
 
+    const skipCount = options?.skipCount ?? 0;
+    assert(skipCount >= 0);
+
     const maxCount = options?.maxCount ?? -1;
+    assert(maxCount >= -1);
 
     return (async function* <T>(events: T[]): AsyncIterable<T> {
       for (
-        let index = startIndex;
-        index <= endIndex && index - startIndex !== maxCount;
+        let index = startIndex + skipCount;
+        index <= endIndex && index - startIndex !== maxCount + skipCount;
         index++
       ) {
         yield events[index];
