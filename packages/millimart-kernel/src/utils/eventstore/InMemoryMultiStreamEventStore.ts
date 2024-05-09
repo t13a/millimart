@@ -28,7 +28,7 @@ export class InMemoryMultiStreamEventStore<T>
   async append(streamId: string, event: T): Promise<void> {
     const eventId = this.toEventId(event);
     if (this.indexes.has(eventId)) {
-      throw new EventStoreError("DuplicateError");
+      throw new EventStoreError("DuplicateError", { eventId });
     }
     const index = this.events.length;
     this.events.push(event);

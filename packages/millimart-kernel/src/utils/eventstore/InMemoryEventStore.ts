@@ -12,51 +12,31 @@ export class InMemoryEventStore<T> implements EventStore<T> {
   async append(event: T): Promise<void> {
     const eventId = this.toEventId(event);
     if (this.indexes.has(eventId)) {
-      throw new EventStoreError("DuplicateError");
+      throw new EventStoreError("DuplicateError", { eventId });
     }
     const index = this.events.length;
     this.events.push(event);
     this.indexes.set(eventId, index);
   }
 
-  read(eventId: string): Promise<T>;
-
-  read(options?: EventStoreReadOptions): AsyncIterable<T>;
-
-  read(arg?: string | EventStoreReadOptions): Promise<T> | AsyncIterable<T> {
-    if (typeof arg === "string") {
-      return new Promise((resolve) => resolve(this.readOne(arg)));
-    } else {
-      return this.readAll(arg);
-    }
-  }
-
-  private readOne(eventId: string): T {
+  private indexOf(eventId: string): number {
     const index = this.indexes.get(eventId);
-
     if (index === undefined) {
-      throw new EventStoreError("NotFoundError");
+      throw new EventStoreError("NotFoundError", { eventId });
     }
-
-    return this.events[index];
+    return index;
   }
 
-  private readAll(options?: EventStoreReadOptions): AsyncIterable<T> {
-    const startIndex = options?.fromEventId
-      ? this.indexes.get(options.fromEventId)
-      : 0;
+  read(options?: EventStoreReadOptions): AsyncIterable<T> {
+    const startIndex =
+      options?.fromEventId !== undefined
+        ? this.indexOf(options.fromEventId)
+        : 0;
 
-    if (startIndex === undefined) {
-      throw new EventStoreError("NotFoundError");
-    }
-
-    const endIndex = options?.toEventId
-      ? this.indexes.get(options.toEventId)
-      : this.events.length - 1;
-
-    if (endIndex === undefined) {
-      throw new EventStoreError("NotFoundError");
-    }
+    const endIndex =
+      options?.toEventId !== undefined
+        ? this.indexOf(options.toEventId)
+        : this.events.length - 1;
 
     const maxCount = options?.maxCount ?? -1;
 
@@ -69,5 +49,10 @@ export class InMemoryEventStore<T> implements EventStore<T> {
         yield events[index];
       }
     })(this.events);
+  }
+
+  async readOne(eventId: string): Promise<T> {
+    const index = this.indexOf(eventId);
+    return this.events[index];
   }
 }

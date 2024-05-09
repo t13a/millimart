@@ -1,8 +1,18 @@
-export type EventStoreErrorName = "DuplicateError" | "NotFoundError";
+export type EventStoreErrorDataMap = {
+  DuplicateError: {
+    eventId: string;
+  };
+  NotFoundError: {
+    eventId: string;
+  };
+};
 
-export class EventStoreError extends Error {
+export class EventStoreError<
+  Type extends keyof EventStoreErrorDataMap,
+> extends Error {
   constructor(
-    readonly name: EventStoreErrorName,
+    readonly type: Type,
+    readonly data: EventStoreErrorDataMap[Type],
     message?: string,
     options?: ErrorOptions,
   ) {

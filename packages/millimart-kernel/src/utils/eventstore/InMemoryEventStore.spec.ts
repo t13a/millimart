@@ -10,50 +10,33 @@ type TestEvent = {
 };
 
 describe("InMemoryEventStore", () => {
-  describe("read()", () => {
-    it("iterates all events", async () => {
-      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+  describe("append", () => {
+    it("appends an events at the end", async () => {
+      const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
+      const e1 = { id: "1", data: "A" };
+      const e2 = { id: "2", data: "B" };
+      const e3 = { id: "3", data: "C" };
 
-      const e1 = { id: "1", data: "Foo" };
-      const e2 = { id: "2", data: "Bar" };
-      const e3 = { id: "3", data: "Baz" };
-      [e1, e2, e3].forEach(async (e) => await store.append(e));
+      await store.append(e1);
+      await store.append(e2);
+      await store.append(e3);
 
       expect(await fromAsync(store.read())).toStrictEqual([e1, e2, e3]);
     });
 
-    it("iterates nothing if no events are appended", async () => {
-      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+    it("throws an error if event ID is duplicated", async () => {
+      const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
+      const e1 = { id: "1", data: "A" };
 
-      expect(await fromAsync(store.read())).toStrictEqual([]);
-    });
-  });
+      await store.append(e1);
 
-  describe("read(eventId)", () => {
-    let store: EventStore<TestEvent>;
-    const e1 = { id: "1", data: "A" };
-    const e2 = { id: "2", data: "B" };
-    const e3 = { id: "3", data: "C" };
-
-    beforeEach(async () => {
-      store = new InMemoryEventStore<TestEvent>((event) => event.id);
-      [e1, e2, e3].forEach(async (e) => await store.append(e));
-    });
-
-    it("returns the specified event", async () => {
-      expect(await store.read("1")).toStrictEqual(e1);
-      expect(await store.read("2")).toStrictEqual(e2);
-      expect(await store.read("3")).toStrictEqual(e3);
-    });
-
-    it("throws an error if event not found", async () => {
-      await expect(async () => await store.read("4")).rejects.toBeInstanceOf(
+      await expect(async () => await store.append(e1)).rejects.toThrowError(
         EventStoreError,
       );
     });
   });
 
-  describe("read(options)", () => {
+  describe("read", () => {
     let store: EventStore<TestEvent>;
     const e1 = { id: "1", data: "A" };
     const e2 = { id: "2", data: "B" };
@@ -64,6 +47,15 @@ describe("InMemoryEventStore", () => {
     beforeEach(async () => {
       store = new InMemoryEventStore<TestEvent>((event) => event.id);
       [e1, e2, e3, e4, e5].forEach(async (e) => await store.append(e));
+    });
+
+    it("iterates all events", async () => {
+      expect(await fromAsync(store.read())).toStrictEqual([e1, e2, e3, e4, e5]);
+    });
+
+    it("iterates nothing if no events are appended", async () => {
+      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+      expect(await fromAsync(store.read())).toStrictEqual([]);
     });
 
     it("iterates events that match options (fromEventId)", async () => {
@@ -117,6 +109,30 @@ describe("InMemoryEventStore", () => {
           }),
         ),
       ).toStrictEqual([e2, e3]);
+    });
+  });
+
+  describe("readOne", () => {
+    let store: EventStore<TestEvent>;
+    const e1 = { id: "1", data: "A" };
+    const e2 = { id: "2", data: "B" };
+    const e3 = { id: "3", data: "C" };
+
+    beforeEach(async () => {
+      store = new InMemoryEventStore<TestEvent>((event) => event.id);
+      [e1, e2, e3].forEach(async (e) => await store.append(e));
+    });
+
+    it("returns the specified event", async () => {
+      expect(await store.readOne("1")).toStrictEqual(e1);
+      expect(await store.readOne("2")).toStrictEqual(e2);
+      expect(await store.readOne("3")).toStrictEqual(e3);
+    });
+
+    it("throws an error if event not found", async () => {
+      await expect(async () => await store.readOne("4")).rejects.toBeInstanceOf(
+        EventStoreError,
+      );
     });
   });
 });

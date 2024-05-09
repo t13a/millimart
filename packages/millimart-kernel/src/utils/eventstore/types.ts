@@ -7,8 +7,8 @@ export interface AppendOnlyEventStore<T> {
 }
 
 export interface ReadOnlyEventStore<T> {
-  read(eventId: string): Promise<T>;
   read(options?: EventStoreReadOptions): AsyncIterable<T>;
+  readOne(eventId: string): Promise<T>;
 }
 
 export type EventStoreReadOptions = {
