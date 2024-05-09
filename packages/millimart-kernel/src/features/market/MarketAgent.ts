@@ -47,7 +47,7 @@ export class MarketAgent extends ActorTemplate<MarketEvent> {
 
   async registerItem(command: RegisterItemCommand): Promise<void> {
     const item = await this.store.replay(
-      ItemReducer({ itemId: command.data.id }),
+      ItemReducer({ itemId: command.data.item.id }),
     );
 
     if (item !== undefined) {
@@ -64,7 +64,7 @@ export class MarketAgent extends ActorTemplate<MarketEvent> {
 
   async registerUser(command: RegisterUserCommand): Promise<void> {
     const user = await this.store.replay(
-      UserReducer({ userId: command.data.id }),
+      UserReducer({ userId: command.data.user.id }),
     );
 
     if (user !== undefined) {

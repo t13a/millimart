@@ -5,30 +5,30 @@ import { ItemReducer } from "./ItemReducer";
 const validEvents: MarketEvent[] = [
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { id: "apple", name: "Apple", emoji: "🍎" },
+    data: { item: { id: "apple", name: "Apple", emoji: "🍎" } },
   }),
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { id: "broccoli", name: "Broccoli", emoji: "🥦" },
+    data: { item: { id: "broccoli", name: "Broccoli", emoji: "🥦" } },
   }),
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { id: "cherry", name: "Cherry", emoji: "🍒" },
+    data: { item: { id: "cherry", name: "Cherry", emoji: "🍒" } },
   }),
 ];
 
 const invalidEvents: MarketEvent[] = [
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { id: "apple", name: "Apple", emoji: "🍎" },
+    data: { item: { id: "apple", name: "Apple", emoji: "🍎" } },
   }),
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { id: "broccoli", name: "Broccoli 1", emoji: "🥦" },
+    data: { item: { id: "broccoli", name: "Broccoli 1", emoji: "🥦" } },
   }),
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { id: "broccoli", name: "Broccoli 2", emoji: "🥦" },
+    data: { item: { id: "broccoli", name: "Broccoli 2", emoji: "🥦" } },
   }),
 ];
 

@@ -10,15 +10,15 @@ export const ItemReducer =
   (state: Item | undefined, event: MarketEvent): Item | undefined => {
     switch (event.type) {
       case "internal.millimart.market.v1.ItemRegistered": {
-        if (event.data.id !== itemId) {
+        if (event.data.item.id !== itemId) {
           return state;
         }
         if (state !== undefined) {
           throw new MarketEventError("ItemAlreadyExistsError", {
-            item: event.data,
+            item: event.data.item,
           });
         }
-        return event.data;
+        return event.data.item;
       }
     }
 

@@ -10,15 +10,15 @@ export const UserReducer =
   (state: User | undefined, event: MarketEvent): User | undefined => {
     switch (event.type) {
       case "internal.millimart.market.v1.UserEntered": {
-        if (event.data.id !== userId) {
+        if (event.data.user.id !== userId) {
           return state;
         }
         if (state !== undefined) {
           throw new MarketEventError("UserAlreadyExistsError", {
-            user: event.data,
+            user: event.data.user,
           });
         }
-        return event.data;
+        return event.data.user;
       }
 
       case "internal.millimart.market.v1.UserLeft": {

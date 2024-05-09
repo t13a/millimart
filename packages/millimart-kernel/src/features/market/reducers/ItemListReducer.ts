@@ -10,8 +10,8 @@ export const ItemListReducer =
 
     switch (event.type) {
       case "internal.millimart.market.v1.ItemRegistered":
-        if (!state.find((item) => item.id === event.data.id)) {
-          return [...state, event.data];
+        if (!state.find((item) => item.id === event.data.item.id)) {
+          return [...state, event.data.item];
         }
         break;
     }

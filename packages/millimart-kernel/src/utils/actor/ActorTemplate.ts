@@ -83,16 +83,12 @@ export class ActorTemplateEventStore<T> implements EventStore<T> {
     await this.afterAppend(event);
   }
 
-  read(eventId: string): Promise<T>;
-  read(options?: EventStoreReadOptions): AsyncIterable<T>;
-  read(
-    options?: string | EventStoreReadOptions,
-  ): Promise<T> | AsyncIterable<T> {
-    if (typeof options === "string") {
-      return this.store.read(options);
-    } else {
-      return this.store.read(options);
-    }
+  read(options?: EventStoreReadOptions): AsyncIterable<T> {
+    return this.store.read(options);
+  }
+
+  async readOne(eventId: string): Promise<T> {
+    return this.store.readOne(eventId);
   }
 
   async replay<U>(

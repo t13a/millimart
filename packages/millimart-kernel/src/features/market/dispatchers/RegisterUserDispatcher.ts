@@ -1,6 +1,6 @@
 import { UserReducer, createMarketEvent } from "..";
 import { ReadOnlyEventStore } from "../../../utils";
-import { useStream } from "../../../utils/reducer/useStream";
+import { useReducer } from "../../../utils/reducer/useReducer";
 import { RegisterUserCommand } from "../MarketCommandSchema";
 import { MarketEvent } from "../MarketEventSchema";
 
@@ -13,7 +13,7 @@ export const RegisterUserDispatcher = ({
   store,
   source,
 }: RegisterUserDispatcherProps) => {
-  const { safeReplay } = useStream(store.read());
+  const { safeReplay } = useReducer(store.read());
 
   return async function* (
     command: RegisterUserCommand,
@@ -32,7 +32,7 @@ export const RegisterUserDispatcher = ({
       source,
       data: { user: command.data.user },
     });
-    await useStream([newEvent]).replay(userReducer, user); // XXX: Uncomprehensible to normal mankind.
+    await useReducer([newEvent]).replay(userReducer, user); // XXX: Uncomprehensible to normal mankind.
 
     // Yield new event.
     yield newEvent;

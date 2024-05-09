@@ -10,8 +10,8 @@ export const UserListReducer =
 
     switch (event.type) {
       case "internal.millimart.market.v1.UserEntered":
-        if (!state.find((user) => user.id === event.data.id)) {
-          return [...state, event.data];
+        if (!state.find((user) => user.id === event.data.user.id)) {
+          return [...state, event.data.user];
         }
         break;
       case "internal.millimart.market.v1.UserLeft":

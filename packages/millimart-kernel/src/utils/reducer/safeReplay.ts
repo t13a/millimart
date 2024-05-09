@@ -3,9 +3,9 @@ import { replay } from "./replay";
 import { Reducer } from "./types";
 
 export const safeReplay = async <S, E>(
-  events: Iterable<E> | AsyncIterable<E>,
   reducer: Reducer<S, E>,
   state: S | undefined = undefined,
+  events: Iterable<E> | AsyncIterable<E>,
 ): Promise<[S | undefined, ReducerError<S, E>[]]> => {
   const errors: ReducerError<S, E>[] = [];
   const safeReducer: Reducer<S, E> = (state, event) => {
@@ -18,5 +18,5 @@ export const safeReplay = async <S, E>(
       return state; // returns the previous state if an error occurred.
     }
   };
-  return [await replay<S, E>(events, safeReducer, state), errors];
+  return [await replay<S, E>(safeReducer, state, events), errors];
 };
