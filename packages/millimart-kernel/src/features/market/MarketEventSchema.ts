@@ -17,7 +17,7 @@ const createMarketEventSchema = <T extends string, D extends z.ZodType>(
 export type UserEnteredEvent = z.infer<typeof UserEnteredEventSchema>;
 export const UserEnteredEventSchema = createMarketEventSchema(
   "UserEntered",
-  UserSchema,
+  z.object({ user: UserSchema }),
 );
 
 export type UserLeftEvent = z.infer<typeof UserLeftEventSchema>;
@@ -31,13 +31,13 @@ export const UserLeftEventSchema = createMarketEventSchema(
 export type ItemRegisteredEvent = z.infer<typeof ItemRegisteredEventSchema>;
 export const ItemRegisteredEventSchema = createMarketEventSchema(
   "ItemRegistered",
-  ItemSchema,
+  z.object({ item: ItemSchema }),
 );
 
 export type OrderConfirmedEvent = z.infer<typeof OrderConfirmedEventSchema>;
 export const OrderConfirmedEventSchema = createMarketEventSchema(
   "OrderConfirmed",
-  OrderSchema,
+  z.object({ order: OrderSchema }),
 );
 
 export type MarketEvent = z.infer<typeof MarketEventSchema>;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MarketError, MarketEvent, createMarketEvent } from "..";
+import { MarketEvent, MarketEventError, createMarketEvent } from "..";
 import { ItemReducer } from "./ItemReducer";
 
 const validEvents: MarketEvent[] = [
@@ -53,6 +53,6 @@ describe("ItemReducer", () => {
   it("throws an error if the item is already registered", () => {
     expect(() =>
       invalidEvents.reduce(ItemReducer({ itemId: "broccoli" }), undefined),
-    ).toThrowError(MarketError);
+    ).toThrowError(MarketEventError);
   });
 });

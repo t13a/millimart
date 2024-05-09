@@ -1,4 +1,4 @@
-import { MarketError, MarketEvent } from "..";
+import { MarketEvent, MarketEventError } from "..";
 import { Item } from "../values";
 
 export type ItemReducerProps = {
@@ -14,7 +14,7 @@ export const ItemReducer =
           return state;
         }
         if (state !== undefined) {
-          throw new MarketError("ItemAlreadyExistsError", {
+          throw new MarketEventError("ItemAlreadyExistsError", {
             item: event.data,
           });
         }

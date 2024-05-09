@@ -1,6 +1,6 @@
 import { Item, User } from "./values";
 
-export type MarketErrorDataMap = {
+export type MarketEventErrorDataMap = {
   ItemAlreadyExistsError: {
     item: Item;
   };
@@ -12,10 +12,12 @@ export type MarketErrorDataMap = {
   };
 };
 
-export class MarketError<Type extends keyof MarketErrorDataMap> extends Error {
+export class MarketEventError<
+  Type extends keyof MarketEventErrorDataMap,
+> extends Error {
   constructor(
     readonly type: Type,
-    readonly data: MarketErrorDataMap[Type],
+    readonly data: MarketEventErrorDataMap[Type],
     message?: string,
     options?: ErrorOptions,
   ) {

@@ -1,8 +1,11 @@
-import { MarketError } from ".";
+import { MarketEventError } from ".";
 import { ActorTemplate, ActorTemplateProps } from "../../utils/actor";
 import { EventHandler } from "../../utils/eventbus";
 import { handleCloudEvent } from "../cloudevents";
-import { RegisterItemCommand, RegisterUserCommand } from "./commands";
+import {
+  RegisterItemCommand,
+  RegisterUserCommand,
+} from "./MarketCommandSchema";
 import {
   ItemRegisteredEvent,
   MarketEvent,
@@ -10,7 +13,7 @@ import {
   OrderConfirmedEvent,
   UserEnteredEvent,
   UserLeftEvent,
-} from "./events";
+} from "./MarketEventSchema";
 import { ItemReducer, UserReducer } from "./reducers";
 import { createMarketEvent } from "./rules";
 
@@ -48,7 +51,7 @@ export class MarketAgent extends ActorTemplate<MarketEvent> {
     );
 
     if (item !== undefined) {
-      throw new MarketError("ItemAlreadyExistsError", { item });
+      throw new MarketEventError("ItemAlreadyExistsError", { item });
     }
 
     await this.store.append(
@@ -65,7 +68,7 @@ export class MarketAgent extends ActorTemplate<MarketEvent> {
     );
 
     if (user !== undefined) {
-      throw new MarketError("UserAlreadyExistsError", { user });
+      throw new MarketEventError("UserAlreadyExistsError", { user });
     }
 
     await this.store.append(

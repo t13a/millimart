@@ -1,4 +1,4 @@
-import { MarketError, MarketEvent } from "..";
+import { MarketEvent, MarketEventError } from "..";
 import { User } from "../values";
 
 export type UserReducerProps = {
@@ -14,7 +14,7 @@ export const UserReducer =
           return state;
         }
         if (state !== undefined) {
-          throw new MarketError("UserAlreadyExistsError", {
+          throw new MarketEventError("UserAlreadyExistsError", {
             user: event.data,
           });
         }
@@ -26,7 +26,7 @@ export const UserReducer =
           return state;
         }
         if (state === undefined) {
-          throw new MarketError("UserNotFoundError", {
+          throw new MarketEventError("UserNotFoundError", {
             userId: event.data.userId,
           });
         }
