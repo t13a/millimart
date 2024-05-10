@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CloudEventSchema } from "../cloudevents";
 import { MoneySchema } from "../currency";
-import { StockSchema } from "./values";
+import { StockRefSchema, StockSchema } from "./values";
 
 export const UserEventTypePrefix = "internal.millimart.user.v1.";
 
@@ -27,23 +27,19 @@ export const StockAvailableSchema = createUserEventSchema(
 export type StockUnavailable = z.infer<typeof StockUnavailableSchema>;
 export const StockUnavailableSchema = createUserEventSchema(
   "StockUnavailable",
-  z.object({
-    stockId: StockSchema.shape.id,
-  }),
+  StockRefSchema,
 );
 
 export type StockChanged = z.infer<typeof StockChangedSchema>;
 export const StockChangedSchema = createUserEventSchema(
   "StockChanged",
   z.union([
-    z.object({
-      stockId: StockSchema.shape.id,
+    StockRefSchema.extend({
       delta: z.literal(true),
       deltaQuantity: z.number().optional(),
       deltaPrice: MoneySchema.optional(),
     }),
-    z.object({
-      stockId: StockSchema.shape.id,
+    StockRefSchema.extend({
       delta: z.literal(false),
       quantity: StockSchema.shape.quantity.optional(),
       price: StockSchema.shape.price.optional(),

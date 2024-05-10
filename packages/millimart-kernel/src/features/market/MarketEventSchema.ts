@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { CloudEventSchema } from "../cloudevents";
-import { ItemSchema, OrderSchema, UserSchema } from "./values";
+import { ItemSchema, OrderSchema, UserRefSchema, UserSchema } from "./values";
 
 export const MarketEventTypePrefix = "internal.millimart.market.v1.";
 
@@ -23,9 +23,7 @@ export const UserEnteredEventSchema = createMarketEventSchema(
 export type UserLeftEvent = z.infer<typeof UserLeftEventSchema>;
 export const UserLeftEventSchema = createMarketEventSchema(
   "UserLeft",
-  z.object({
-    userId: UserSchema.shape.id,
-  }),
+  UserRefSchema,
 );
 
 export type ItemRegisteredEvent = z.infer<typeof ItemRegisteredEventSchema>;

@@ -1,11 +1,10 @@
 import * as z from "zod";
 import { MoneySchema } from "../../currency";
-import { ItemSchema } from "./ItemSchema";
+import { ItemRefSchema } from "./ItemRefSchema";
 import { UserSchema } from "./UserSchema";
 
 export type OrderItem = z.infer<typeof OrderItemSchema>;
-export const OrderItemSchema = z.object({
-  itemId: ItemSchema.shape.id,
+export const OrderItemSchema = ItemRefSchema.extend({
   quantity: z.number().positive(),
 });
 
