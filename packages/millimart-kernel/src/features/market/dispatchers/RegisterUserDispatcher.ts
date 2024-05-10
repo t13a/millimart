@@ -1,8 +1,9 @@
-import { UserReducer, createMarketEvent } from "..";
 import { ReadOnlyEventStore } from "../../../utils";
 import { useReducer } from "../../../utils/reducer/useReducer";
 import { RegisterUserCommand } from "../MarketCommandSchema";
 import { MarketEvent } from "../MarketEventSchema";
+import { UserReducer } from "../reducers";
+import { createMarketEvent } from "../rules";
 
 export type RegisterUserDispatcherProps = {
   store: ReadOnlyEventStore<MarketEvent>;

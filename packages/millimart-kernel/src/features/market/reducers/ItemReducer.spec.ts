@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { MarketEvent, MarketEventError, createMarketEvent } from "..";
+import { MarketEvent } from "../MarketEventSchema";
+import { createMarketEvent } from "../rules";
 import { ItemReducer } from "./ItemReducer";
 
 const validEvents: MarketEvent[] = [

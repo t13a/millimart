@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { convert } from ".";
 import { CurrencyError } from "../CurrencyError";
+import { convert } from "./index";
 
 describe("convert", () => {
   const exchangeRate = {

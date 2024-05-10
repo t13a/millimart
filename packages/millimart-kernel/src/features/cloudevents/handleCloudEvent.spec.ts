@@ -1,8 +1,8 @@
 import { uuidv7 } from "uuidv7";
 import { describe, expect, it } from "vitest";
 import z from "zod";
-import { CloudEventHandlerMap, handleCloudEvent } from ".";
 import { CloudEventSchema } from "./CloudEventSchema";
+import { CloudEventHandlerMap, handleCloudEvent } from "./handleCloudEvent";
 
 type Foo = z.infer<typeof FooSchema>;
 const FooSchema = CloudEventSchema.extend({

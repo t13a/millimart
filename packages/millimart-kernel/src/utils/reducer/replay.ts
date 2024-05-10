@@ -1,4 +1,4 @@
-import { Reducer } from ".";
+import { Reducer } from "./types";
 
 export const replay = async <S, E>(
   reducer: Reducer<S, E>,

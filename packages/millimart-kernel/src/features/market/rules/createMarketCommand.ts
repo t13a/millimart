@@ -1,4 +1,4 @@
-import { MarketCommand, MarketCommandTypePrefix } from "..";
+import { MarketCommand, MarketCommandTypePrefix } from "../MarketCommandSchema";
 
 export type MarketCommandTypeName =
   MarketCommand["type"] extends `${typeof MarketCommandTypePrefix}${infer TypeName}`

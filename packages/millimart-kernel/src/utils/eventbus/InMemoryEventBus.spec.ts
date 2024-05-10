@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { EventHandler } from ".";
 import { InMemoryEventBus } from "./InMemoryEventBus";
+import { EventHandler } from "./types";
 
 type TestEvent = {
   type: "Foo" | "Bar";

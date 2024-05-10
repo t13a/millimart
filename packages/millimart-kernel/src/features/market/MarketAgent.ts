@@ -1,4 +1,3 @@
-import { MarketEventError } from ".";
 import { ActorTemplate, ActorTemplateProps } from "../../utils/actor";
 import { EventHandler } from "../../utils/eventbus";
 import { handleCloudEvent } from "../cloudevents";
@@ -6,6 +5,7 @@ import {
   RegisterItemCommand,
   RegisterUserCommand,
 } from "./MarketCommandSchema";
+import { MarketEventError } from "./MarketEventError";
 import {
   ItemRegisteredEvent,
   MarketEvent,

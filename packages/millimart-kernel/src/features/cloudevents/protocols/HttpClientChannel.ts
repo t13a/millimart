@@ -1,8 +1,8 @@
 import assert from "assert";
 import { ZodType } from "zod";
-import { CloudEventDecoder } from ".";
 import { EventChannel, EventHandler } from "../../../utils/eventbus";
 import { CloudEvent } from "../CloudEventSchema";
+import { CloudEventDecoder } from "./CloudEventDecoder";
 import {
   CloudEventEncoder,
   CloudEventEncoderOptions,

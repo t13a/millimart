@@ -1,4 +1,5 @@
-import { MarketEvent, MarketEventError } from "..";
+import { MarketEventError } from "../MarketEventError";
+import { MarketEvent } from "../MarketEventSchema";
 import { Item } from "../values";
 
 export type ItemReducerProps = {

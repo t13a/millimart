@@ -1,4 +1,4 @@
-import { MarketEvent } from "..";
+import { MarketEvent } from "../MarketEventSchema";
 import { UserList } from "../values";
 
 export const UserListReducer =

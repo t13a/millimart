@@ -1,4 +1,5 @@
-import { MarketEvent, MarketEventError } from "..";
+import { MarketEventError } from "../MarketEventError";
+import { MarketEvent } from "../MarketEventSchema";
 import { User } from "../values";
 
 export type UserReducerProps = {
