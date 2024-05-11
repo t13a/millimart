@@ -1,39 +1,27 @@
-import { MarketEventError } from "../MarketEventError";
+import { Reducer } from "../../../utils";
 import { MarketEvent } from "../MarketEventSchema";
-import { User } from "../values";
-
-export type UserReducerProps = {
-  userId: User["id"];
-};
+import { User, UserRef } from "../values";
 
 export const UserReducer =
-  ({ userId }: UserReducerProps) =>
-  (state: User | undefined, event: MarketEvent): User | undefined => {
+  ({ userId }: UserRef): Reducer<User, MarketEvent> =>
+  (state, event) => {
     switch (event.type) {
-      case "internal.millimart.market.v1.UserEntered": {
+      case "internal.millimart.market.v1.UserEntered":
         if (event.data.user.id !== userId) {
           return state;
         }
         if (state !== undefined) {
-          throw new MarketEventError("UserAlreadyExistsError", {
-            user: event.data.user,
-          });
+          return state;
         }
         return event.data.user;
-      }
-
-      case "internal.millimart.market.v1.UserLeft": {
+      case "internal.millimart.market.v1.UserLeft":
         if (event.data.userId !== userId) {
           return state;
         }
         if (state === undefined) {
-          throw new MarketEventError("UserNotFoundError", {
-            userId: event.data.userId,
-          });
+          return state;
         }
         return undefined;
-      }
     }
-
     return state;
   };

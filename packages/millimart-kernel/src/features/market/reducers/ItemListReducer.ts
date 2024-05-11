@@ -4,17 +4,11 @@ import { ItemList } from "../values";
 export const ItemListReducer =
   () =>
   (state: ItemList | undefined, event: MarketEvent): ItemList | undefined => {
-    if (state === undefined) {
-      state = [];
-    }
-
     switch (event.type) {
       case "internal.millimart.market.v1.ItemRegistered":
-        if (!state.find((item) => item.id === event.data.item.id)) {
-          return [...state, event.data.item];
-        }
-        break;
+        state = state ?? [];
+        const isFound = !!state.find((item) => item.id === event.data.item.id);
+        return isFound ? state : [...state, event.data.item];
     }
-
     return state;
   };

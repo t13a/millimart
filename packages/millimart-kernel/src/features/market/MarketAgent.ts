@@ -1,11 +1,11 @@
-import { ActorTemplate, ActorTemplateProps } from "../../utils/actor";
-import { EventHandler } from "../../utils/eventbus";
+import { createMarketCommand } from ".";
+import { ActorTemplate, ActorTemplateProps, EventHandler } from "../../utils";
 import { handleCloudEvent } from "../cloudevents";
 import {
+  MarketCommand,
   RegisterItemCommand,
   RegisterUserCommand,
 } from "./MarketCommandSchema";
-import { MarketEventError } from "./MarketEventError";
 import {
   ItemRegisteredEvent,
   MarketEvent,
@@ -14,13 +14,14 @@ import {
   UserEnteredEvent,
   UserLeftEvent,
 } from "./MarketEventSchema";
-import { ItemReducer, UserReducer } from "./reducers";
-import { createMarketEvent } from "./rules";
-
-export type MarketAgentProps = Omit<ActorTemplateProps<MarketEvent>, "handler">;
+import {
+  MarketCommandDispatcher,
+  RegisterItemCommandDispatcher,
+  RegisterUserCommandDispatcher,
+} from "./dispatchers";
 
 export class MarketAgent extends ActorTemplate<MarketEvent> {
-  constructor(props: MarketAgentProps) {
+  constructor(props: ActorTemplateProps<MarketEvent>) {
     const p = MarketEventTypePrefix;
     const handler: EventHandler<MarketEvent> = async (event) => {
       await handleCloudEvent(event, {
@@ -30,7 +31,7 @@ export class MarketAgent extends ActorTemplate<MarketEvent> {
         [`${p}UserLeft`]: async (e) => await this.handleUserLeft(e),
       });
     };
-    super({ ...props, handler });
+    super(handler, props);
   }
 
   private async handleItemRegistered(
@@ -45,37 +46,28 @@ export class MarketAgent extends ActorTemplate<MarketEvent> {
 
   private async handleUserLeft(_event: UserLeftEvent): Promise<void> {}
 
-  async registerItem(command: RegisterItemCommand): Promise<void> {
-    const item = await this.store.replay(
-      ItemReducer({ itemId: command.data.item.id }),
-    );
+  private dispatch<C extends MarketCommand>(
+    dispatcher: MarketCommandDispatcher<C>,
+    command: C,
+  ) {
+    return dispatcher({ store: this.store, source: this.name })(command);
+  }
 
-    if (item !== undefined) {
-      throw new MarketEventError("ItemAlreadyExistsError", { item });
-    }
-
-    await this.store.append(
-      createMarketEvent("ItemRegistered", {
-        source: this.name,
-        data: command.data,
-      }),
+  public async registerItem(data: RegisterItemCommand["data"]): Promise<void> {
+    await this.append(
+      this.dispatch(
+        RegisterItemCommandDispatcher,
+        createMarketCommand("RegisterItem", data),
+      ),
     );
   }
 
-  async registerUser(command: RegisterUserCommand): Promise<void> {
-    const user = await this.store.replay(
-      UserReducer({ userId: command.data.user.id }),
-    );
-
-    if (user !== undefined) {
-      throw new MarketEventError("UserAlreadyExistsError", { user });
-    }
-
-    await this.store.append(
-      createMarketEvent("UserEntered", {
-        source: this.name,
-        data: command.data,
-      }),
+  public async registerUser(data: RegisterUserCommand["data"]): Promise<void> {
+    await this.append(
+      this.dispatch(
+        RegisterUserCommandDispatcher,
+        createMarketCommand("RegisterUser", data),
+      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import * as z from "zod";
 import { MoneySchema } from "../../currency";
 import { ItemRefSchema } from "./ItemRefSchema";
-import { UserSchema } from "./UserSchema";
+import { UserRefSchema } from "./UserRefSchema";
 
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 export const OrderItemSchema = ItemRefSchema.extend({
@@ -11,8 +11,8 @@ export const OrderItemSchema = ItemRefSchema.extend({
 export type Order = z.infer<typeof OrderSchema>;
 export const OrderSchema = z.object({
   id: z.number().positive(),
-  sellerId: UserSchema.shape.id,
-  buyerId: UserSchema.shape.id,
+  seller: UserRefSchema,
+  buyer: UserRefSchema,
   items: OrderItemSchema.array(),
   amount: MoneySchema,
 });

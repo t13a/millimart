@@ -21,15 +21,13 @@ const validEvents: MarketEvent[] = [
 const invalidEvents: MarketEvent[] = [
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { item: { id: "apple", name: "Apple", emoji: "🍎" } },
+    data: { item: { id: "broccoli", name: "Broccoli", emoji: "🥦" } },
   }),
   createMarketEvent("ItemRegistered", {
     source: "/",
-    data: { item: { id: "broccoli", name: "Broccoli 1", emoji: "🥦" } },
-  }),
-  createMarketEvent("ItemRegistered", {
-    source: "/",
-    data: { item: { id: "broccoli", name: "Broccoli 2", emoji: "🥦" } },
+    data: {
+      item: { id: "broccoli", name: "Broccoli (Duplicated)", emoji: "🥦" },
+    },
   }),
 ];
 
@@ -51,9 +49,15 @@ describe("ItemReducer", () => {
     expect(state).toStrictEqual(undefined);
   });
 
-  it("throws an error if the item is already registered", () => {
-    expect(() =>
-      invalidEvents.reduce(ItemReducer({ itemId: "broccoli" }), undefined),
-    ).toThrowError(MarketEventError);
+  it("ignores the event if the item is already registered", () => {
+    const state = invalidEvents.reduce(
+      ItemReducer({ itemId: "broccoli" }),
+      undefined,
+    );
+    expect(state).toStrictEqual({
+      id: "broccoli",
+      name: "Broccoli",
+      emoji: "🥦",
+    });
   });
 });

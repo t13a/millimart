@@ -1,27 +1,19 @@
-import { MarketEventError } from "../MarketEventError";
+import { Reducer } from "../../../utils";
 import { MarketEvent } from "../MarketEventSchema";
-import { Item } from "../values";
-
-export type ItemReducerProps = {
-  itemId: Item["id"];
-};
+import { Item, ItemRef } from "../values";
 
 export const ItemReducer =
-  ({ itemId }: ItemReducerProps) =>
-  (state: Item | undefined, event: MarketEvent): Item | undefined => {
+  ({ itemId }: ItemRef): Reducer<Item, MarketEvent> =>
+  (state, event) => {
     switch (event.type) {
-      case "internal.millimart.market.v1.ItemRegistered": {
+      case "internal.millimart.market.v1.ItemRegistered":
         if (event.data.item.id !== itemId) {
           return state;
         }
         if (state !== undefined) {
-          throw new MarketEventError("ItemAlreadyExistsError", {
-            item: event.data.item,
-          });
+          return state;
         }
         return event.data.item;
-      }
     }
-
     return state;
   };

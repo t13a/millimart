@@ -1,15 +1,11 @@
-import { Item, User } from "./values";
+import { ItemRef, UserRef } from "./values";
 
 export type MarketCommandErrorDataMap = {
-  ItemAlreadyExistsError: {
-    item: Item;
-  };
-  UserAlreadyExistsError: {
-    user: User;
-  };
-  UserNotFoundError: {
-    userId: User["id"];
-  };
+  ItemAlreadyExistsError: ItemRef;
+  ItemNotExistsError: ItemRef;
+  UserAlreadyExistsError: UserRef;
+  UserNotExistsError: UserRef;
+  UserBalanceInsufficient: UserRef;
 };
 
 export class MarketCommandError<

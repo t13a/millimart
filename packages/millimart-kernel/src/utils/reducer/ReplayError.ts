@@ -1,4 +1,4 @@
-export class ReducerError<S, E> extends Error {
+export class ReplayError<S, E> extends Error {
   constructor(
     readonly state: S | undefined,
     readonly event: E,

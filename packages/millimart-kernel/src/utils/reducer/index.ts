@@ -1,4 +1,4 @@
-export * from "./ReducerError";
+export * from "./ReplayError";
 export * from "./replay";
-export * from "./safeReplay";
 export * from "./types";
+export * from "./useStream";

@@ -47,8 +47,8 @@ describe("MarketEventSchema", () => {
       data: {
         order: {
           id: 123,
-          sellerId: "alice",
-          buyerId: "bob",
+          seller: { userId: "alice" },
+          buyer: { userId: "bob" },
           items: [{ itemId: "tomato", quantity: 2 }],
           amount: { currency: "TMP", value: 20 },
         },

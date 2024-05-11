@@ -1,6 +1,6 @@
 export * from "./MarketAgent";
+export * from "./MarketCommandError";
 export * from "./MarketCommandSchema";
-export * from "./MarketEventError";
 export * from "./MarketEventSchema";
 export * from "./dispatchers";
 export * from "./reducers";
