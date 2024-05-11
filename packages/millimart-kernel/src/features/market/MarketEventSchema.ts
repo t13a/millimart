@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CloudEventSchema } from "../cloudevents";
+import { CloudEventSchema } from "../../utils";
 import { ItemSchema, OrderSchema, UserRefSchema, UserSchema } from "./values";
 
 export const MarketEventTypePrefix = "internal.millimart.market.v1.";

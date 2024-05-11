@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CloudEventSchema } from "../cloudevents";
+import { CloudEventSchema } from "../../utils";
 import { MoneySchema } from "../currency";
 import { StockRefSchema, StockSchema } from "./values";
 

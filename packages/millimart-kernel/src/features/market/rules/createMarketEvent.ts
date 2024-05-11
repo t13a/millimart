@@ -1,4 +1,4 @@
-import { createCloudEventFactory } from "../../cloudevents";
+import { createCloudEventFactory } from "../../../utils";
 import { MarketEvent, MarketEventTypePrefix } from "../MarketEventSchema";
 
 export const createMarketEvent = createCloudEventFactory<

@@ -1,6 +1,10 @@
 import { createMarketCommand } from ".";
-import { ActorTemplate, ActorTemplateProps, EventHandler } from "../../utils";
-import { handleCloudEvent } from "../cloudevents";
+import {
+  ActorTemplate,
+  ActorTemplateProps,
+  EventHandler,
+  handleCloudEvent,
+} from "../../utils";
 import {
   MarketCommand,
   RegisterItemCommand,

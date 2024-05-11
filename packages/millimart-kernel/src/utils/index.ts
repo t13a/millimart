@@ -1,4 +1,5 @@
 export * from "./actor";
+export * from "./cloudevents";
 export * from "./dispatcher";
 export * from "./eventbus";
 export * from "./eventstore";
