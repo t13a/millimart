@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "millimart-kernel": "file:../millimart-kernel"
+    "millimart-kernel": "file:../millimart-kernel",
+    "option-t": "^43.0.1",
+    "zod": "^3.23.8",
+    "zod-express-middleware": "^1.4.0"
   }
 }
