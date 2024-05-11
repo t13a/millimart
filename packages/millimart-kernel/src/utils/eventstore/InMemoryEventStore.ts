@@ -1,17 +1,15 @@
 import assert from "assert";
 import { EventStoreError } from "./EventStoreError";
-import { EventStore, EventStoreReadOptions } from "./types";
-
-type ToEventId<T> = (event: T) => string;
+import { EventStore, EventStoreReadOptions, ExtractEventId } from "./types";
 
 export class InMemoryEventStore<T> implements EventStore<T> {
   private events: T[] = [];
   private indexes = new Map<string, number>();
 
-  constructor(private toEventId: ToEventId<T>) {}
+  constructor(private extractEventId: ExtractEventId<T>) {}
 
   async append(event: T): Promise<void> {
-    const eventId = this.toEventId(event);
+    const eventId = this.extractEventId(event);
     if (this.indexes.has(eventId)) {
       throw new EventStoreError("DuplicateError", { eventId });
     }

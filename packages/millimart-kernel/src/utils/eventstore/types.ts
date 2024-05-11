@@ -1,3 +1,5 @@
+export type ExtractEventId<T> = (event: T) => string;
+
 export interface EventStore<T>
   extends AppendOnlyEventStore<T>,
     ReadOnlyEventStore<T> {}

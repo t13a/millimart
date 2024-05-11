@@ -3,13 +3,10 @@ import z from "zod";
 import { CloudEventError } from "../CloudEventError";
 import { CloudEvent } from "../CloudEventSchema";
 
-export class CloudEventDecoder<
-  CE extends CloudEvent,
-  Schema extends z.ZodType<CE>,
-> {
-  constructor(private schema: Schema) {}
+export class CloudEventDecoder<CE extends CloudEvent> {
+  constructor(private schema: z.ZodType<CE>) {}
 
-  fromMessage(message: Message): z.infer<Schema> {
+  fromMessage(message: Message): CE {
     if (!HTTP.isEvent(message)) {
       throw new CloudEventError("NoCloudEventError", { message });
     }
