@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "cloudevents": "^8.0.0",
+    "friendly-username-generator": "^2.0.4",
     "uuidv7": "^0.6.3",
     "zod": "^3.23.8"
   }
