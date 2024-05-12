@@ -3,5 +3,8 @@
     "source.organizeImports": "always"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "**/packages/millimart-client/src/**/*.css": "tailwindcss"
+  }
 }
