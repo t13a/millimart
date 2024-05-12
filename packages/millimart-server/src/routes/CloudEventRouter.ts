@@ -14,7 +14,7 @@ import {
   tryCatchIntoResultAsync,
 } from "option-t/PlainResult";
 import { z } from "zod";
-import { validateRequest } from "zod-express-middleware";
+import { processRequest, validateRequest } from "zod-express-middleware";
 
 export type CloudEventRouterProps<CE extends CloudEvent> = {
   store: EventStore<CE>;
@@ -34,7 +34,7 @@ export const CloudEventRouter = <CE extends CloudEvent>({
     z.object({ source: z.literal(source) }).passthrough(),
   );
 
-  router.post("/", express.text({ type: "*/*" }), async (req, res) => {
+  router.post("/events", express.text({ type: "*/*" }), async (req, res) => {
     const result = tryCatchIntoResult(() =>
       new CloudEventDecoder<CE>(internalSchema).fromMessage(req),
     );
@@ -46,8 +46,8 @@ export const CloudEventRouter = <CE extends CloudEvent>({
   });
 
   router.get(
-    "/",
-    validateRequest({
+    "/events",
+    processRequest({
       query: z.object({
         from: z.string().min(1).optional(),
         to: z.string().min(1).optional(),
@@ -74,7 +74,7 @@ export const CloudEventRouter = <CE extends CloudEvent>({
   );
 
   router.get(
-    "/:eventId",
+    "/events/:eventId",
     validateRequest({
       params: z.object({
         eventId: z.string().min(1),
