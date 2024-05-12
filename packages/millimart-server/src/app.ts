@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import "express-async-errors";
 import { InMemoryEventStore, mkt } from "millimart-kernel";
 import {
   MarketEvent,
@@ -7,6 +8,7 @@ import {
   generateRandomUser,
 } from "../../millimart-kernel/src/features/market";
 import { CloudEventRouter } from "./routes/CloudEventRouter";
+import { errorHandler } from "./utils/errorHandler";
 
 const app = express();
 const port = 3000;
@@ -32,6 +34,8 @@ setInterval(() => {
   const event = createMarketEvent("UserEntered", { source, data: { user } });
   marketEventStore.append(event);
 }, 5000);
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`MilliMart server listening on port ${port}`);
