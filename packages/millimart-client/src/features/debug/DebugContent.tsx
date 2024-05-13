@@ -26,7 +26,7 @@ export const DebugContent = () => {
       </div>
       <AllCloudEvents
         className="my-4"
-        source="http://localhost:3000/market/events"
+        source="http://127.0.0.1:3000/market/events?direction=backwards&max=10"
         config={{ refreshInterval }}
       />
     </>

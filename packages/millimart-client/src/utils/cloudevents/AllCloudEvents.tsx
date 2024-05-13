@@ -17,7 +17,7 @@ export const AllCloudEvents = ({
 
   return (
     <>
-      {data.toReversed().map((event) => (
+      {data.map((event) => (
         <CloudEventCard key={event.id} event={event} {...rest} />
       ))}
     </>
