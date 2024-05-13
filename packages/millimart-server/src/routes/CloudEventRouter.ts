@@ -49,6 +49,9 @@ export const CloudEventRouter = <CE extends CloudEvent>({
     "/events",
     processRequest({
       query: z.object({
+        direction: z
+          .union([z.literal("backwards"), z.literal("forwards")])
+          .optional(),
         from: z.string().min(1).optional(),
         to: z.string().min(1).optional(),
         skip: z.coerce.number().nonnegative().optional(),
@@ -57,6 +60,7 @@ export const CloudEventRouter = <CE extends CloudEvent>({
     }),
     async (req, res) => {
       const options: EventStoreReadOptions = {
+        direction: req.query.direction,
         fromEventId: req.query.from,
         toEventId: req.query.to,
         skipCount: req.query.skip,
