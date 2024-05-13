@@ -14,6 +14,7 @@ export interface ReadOnlyEventStore<T> {
 }
 
 export type EventStoreReadOptions = {
+  direction?: "backwards" | "forwards";
   fromEventId?: string;
   toEventId?: string;
   skipCount?: number;

@@ -27,31 +27,51 @@ export class InMemoryEventStore<T> implements EventStore<T> {
   }
 
   read(options?: EventStoreReadOptions): AsyncIterable<T> {
+    const direction = options?.direction ?? "forwards";
+
     const startIndex =
       options?.fromEventId !== undefined
         ? this.indexOf(options.fromEventId)
-        : 0;
+        : direction === "forwards"
+          ? 0
+          : this.events.length - 1;
 
     const endIndex =
       options?.toEventId !== undefined
         ? this.indexOf(options.toEventId)
-        : this.events.length - 1;
+        : direction === "forwards"
+          ? this.events.length - 1
+          : 0;
 
     const skipCount = options?.skipCount ?? 0;
     assert(skipCount >= 0);
 
-    const maxCount = options?.maxCount ?? -1;
-    assert(maxCount >= -1);
+    const maxCount = options?.maxCount ?? 0;
+    assert(maxCount >= 0);
 
-    return (async function* <T>(events: T[]): AsyncIterable<T> {
-      for (
-        let index = startIndex + skipCount;
-        index <= endIndex && index - startIndex !== maxCount + skipCount;
-        index++
-      ) {
-        yield events[index];
-      }
-    })(this.events);
+    return (
+      direction === "forwards"
+        ? async function* <T>(events: T[]): AsyncIterable<T> {
+            for (
+              let index = startIndex + skipCount;
+              index <= endIndex &&
+              (maxCount === 0 || index - startIndex !== maxCount + skipCount);
+              index++
+            ) {
+              yield events[index];
+            }
+          }
+        : async function* <T>(events: T[]): AsyncIterable<T> {
+            for (
+              let index = startIndex - skipCount;
+              index >= endIndex &&
+              (maxCount === 0 || startIndex - index !== maxCount + skipCount);
+              index--
+            ) {
+              yield events[index];
+            }
+          }
+    )(this.events);
   }
 
   async readOne(eventId: string): Promise<T> {

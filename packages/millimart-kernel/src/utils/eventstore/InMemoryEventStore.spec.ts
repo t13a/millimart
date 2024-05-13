@@ -53,9 +53,22 @@ describe("InMemoryEventStore", () => {
       expect(await fromAsync(store.read())).toStrictEqual([e1, e2, e3, e4, e5]);
     });
 
+    it("iterates all events (backwards)", async () => {
+      expect(
+        await fromAsync(store.read({ direction: "backwards" })),
+      ).toStrictEqual([e5, e4, e3, e2, e1]);
+    });
+
     it("iterates nothing if no events are appended", async () => {
       const store = new InMemoryEventStore<TestEvent>((event) => event.id);
       expect(await fromAsync(store.read())).toStrictEqual([]);
+    });
+
+    it("iterates nothing if no events are appended (backwards)", async () => {
+      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+      expect(
+        await fromAsync(store.read({ direction: "backwards" })),
+      ).toStrictEqual([]);
     });
 
     it("iterates events that match options (fromEventId)", async () => {
@@ -68,6 +81,17 @@ describe("InMemoryEventStore", () => {
       ).toStrictEqual([e2, e3, e4, e5]);
     });
 
+    it("iterates events that match options (fromEventId, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            fromEventId: "2",
+          }),
+        ),
+      ).toStrictEqual([e2, e1]);
+    });
+
     it("iterates events that match options (toEventId)", async () => {
       expect(
         await fromAsync(
@@ -76,6 +100,17 @@ describe("InMemoryEventStore", () => {
           }),
         ),
       ).toStrictEqual([e1, e2, e3, e4]);
+    });
+
+    it("iterates events that match options (toEventId, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            toEventId: "4",
+          }),
+        ),
+      ).toStrictEqual([e5, e4]);
     });
 
     it("iterates events that match options (skipCount < length)", async () => {
@@ -88,10 +123,32 @@ describe("InMemoryEventStore", () => {
       ).toStrictEqual([e4, e5]);
     });
 
+    it("iterates events that match options (skipCount < length, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            skipCount: 3,
+          }),
+        ),
+      ).toStrictEqual([e2, e1]);
+    });
+
     it("iterates events that match options (skipCount = length)", async () => {
       expect(
         await fromAsync(
           store.read({
+            skipCount: 5,
+          }),
+        ),
+      ).toStrictEqual([]);
+    });
+
+    it("iterates events that match options (skipCount = length, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
             skipCount: 5,
           }),
         ),
@@ -108,6 +165,17 @@ describe("InMemoryEventStore", () => {
       ).toStrictEqual([]);
     });
 
+    it("iterates events that match options (skipCount > length, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            skipCount: 7,
+          }),
+        ),
+      ).toStrictEqual([]);
+    });
+
     it("iterates events that match options (maxCount < length)", async () => {
       expect(
         await fromAsync(
@@ -116,6 +184,17 @@ describe("InMemoryEventStore", () => {
           }),
         ),
       ).toStrictEqual([e1, e2, e3]);
+    });
+
+    it("iterates events that match options (maxCount < length, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            maxCount: 3,
+          }),
+        ),
+      ).toStrictEqual([e5, e4, e3]);
     });
 
     it("iterates events that match options (maxCount = length)", async () => {
@@ -128,6 +207,17 @@ describe("InMemoryEventStore", () => {
       ).toStrictEqual([e1, e2, e3, e4, e5]);
     });
 
+    it("iterates events that match options (maxCount = length, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            maxCount: 5,
+          }),
+        ),
+      ).toStrictEqual([e5, e4, e3, e2, e1]);
+    });
+
     it("iterates events that match options (maxCount > length)", async () => {
       expect(
         await fromAsync(
@@ -136,6 +226,17 @@ describe("InMemoryEventStore", () => {
           }),
         ),
       ).toStrictEqual([e1, e2, e3, e4, e5]);
+    });
+
+    it("iterates events that match options (maxCount > length, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            maxCount: 7,
+          }),
+        ),
+      ).toStrictEqual([e5, e4, e3, e2, e1]);
     });
 
     it("iterates events that match options (fromEventId, toEventId)", async () => {
@@ -147,6 +248,18 @@ describe("InMemoryEventStore", () => {
           }),
         ),
       ).toStrictEqual([e2, e3, e4]);
+    });
+
+    it("iterates events that match options (fromEventId, toEventId, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            fromEventId: "4",
+            toEventId: "2",
+          }),
+        ),
+      ).toStrictEqual([e4, e3, e2]);
     });
 
     it("iterates events that match options (fromEventId, toEventId, skipCount)", async () => {
@@ -161,12 +274,39 @@ describe("InMemoryEventStore", () => {
       ).toStrictEqual([e3, e4]);
     });
 
+    it("iterates events that match options (fromEventId, toEventId, skipCount, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            fromEventId: "4",
+            toEventId: "2",
+            skipCount: 1,
+          }),
+        ),
+      ).toStrictEqual([e3, e2]);
+    });
+
     it("iterates events that match options (fromEventId, toEventId, skipCount, maxCount)", async () => {
       expect(
         await fromAsync(
           store.read({
             fromEventId: "2",
             toEventId: "4",
+            skipCount: 1,
+            maxCount: 1,
+          }),
+        ),
+      ).toStrictEqual([e3]);
+    });
+
+    it("iterates events that match options (fromEventId, toEventId, skipCount, maxCount, backwards)", async () => {
+      expect(
+        await fromAsync(
+          store.read({
+            direction: "backwards",
+            fromEventId: "4",
+            toEventId: "2",
             skipCount: 1,
             maxCount: 1,
           }),
