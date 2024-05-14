@@ -2,11 +2,6 @@ import cors from "cors";
 import express from "express";
 import "express-async-errors";
 import { InMemoryEventStore, mkt } from "millimart-kernel";
-import {
-  MarketEvent,
-  createMarketEvent,
-  generateRandomUser,
-} from "../../millimart-kernel/src/features/market";
 import { CloudEventRouter } from "./routes/CloudEventRouter";
 import { errorHandler } from "./utils/errorHandler";
 
@@ -15,13 +10,13 @@ const port = 3000;
 
 app.use(cors());
 
-const marketEventStore = new InMemoryEventStore<MarketEvent>(
+const marketEventStore = new InMemoryEventStore<mkt.MarketEvent>(
   (event) => event.id,
 );
 const source = "/market";
 app.use(
   source,
-  CloudEventRouter<MarketEvent>({
+  CloudEventRouter<mkt.MarketEvent>({
     store: marketEventStore,
     schema: mkt.MarketEventSchema,
     source,
@@ -30,8 +25,11 @@ app.use(
 
 // Append random user every 5 seconds (for testing).
 setInterval(() => {
-  const user = generateRandomUser();
-  const event = createMarketEvent("UserEntered", { source, data: { user } });
+  const user = mkt.generateRandomUser();
+  const event = mkt.createMarketEvent("UserEntered", {
+    source,
+    data: { user },
+  });
   marketEventStore.append(event);
 }, 5000);
 
