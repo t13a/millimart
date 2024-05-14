@@ -1,3 +1,4 @@
+import { nextTick } from "process";
 import { beforeEach, describe, expect, it } from "vitest";
 import { fromAsync } from "../misc";
 import { EventStoreError } from "./EventStoreError";
@@ -13,10 +14,10 @@ describe("InMemoryEventStore", () => {
   describe("append", () => {
     it("appends an events at the end", async () => {
       const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
+
       const e1 = { id: "1", data: "A" };
       const e2 = { id: "2", data: "B" };
       const e3 = { id: "3", data: "C" };
-
       await store.append(e1);
       await store.append(e2);
       await store.append(e3);
@@ -26,13 +27,55 @@ describe("InMemoryEventStore", () => {
 
     it("throws an error if event ID is duplicated", async () => {
       const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
-      const e1 = { id: "1", data: "A" };
 
+      const e1 = { id: "1", data: "A" };
       await store.append(e1);
 
       await expect(async () => await store.append(e1)).rejects.toThrowError(
         EventStoreError,
       );
+    });
+
+    it("emits an event if any listener added", async () => {
+      const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
+      const result: TestEvent[] = [];
+      store.on("append", (event: TestEvent) => result.push(event));
+
+      const e1 = { id: "1", data: "A" };
+      await store.append(e1);
+
+      expect(result).toStrictEqual([e1]);
+    });
+
+    it("emits an error event if any listener failed (sync)", async () => {
+      const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
+      const errors: unknown[] = [];
+      store.on("append", () => {
+        throw new Error("Test");
+      });
+      store.on("error", (error) => errors.push(error));
+
+      const e1 = { id: "1", data: "A" };
+      await store.append(e1);
+
+      expect(errors.length).toBe(1);
+      expect(errors[0]).instanceOf(Error);
+    });
+
+    it("emits an error event if any listener failed (async)", async () => {
+      const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
+      const errors: unknown[] = [];
+      store.on("append", async () => {
+        throw new Error("Test");
+      });
+      store.on("error", (error) => errors.push(error));
+
+      const e1 = { id: "1", data: "A" };
+      await store.append(e1);
+      await new Promise((resolve) => nextTick(resolve, 0));
+
+      expect(errors.length).toBe(1);
+      expect(errors[0]).instanceOf(Error);
     });
   });
 

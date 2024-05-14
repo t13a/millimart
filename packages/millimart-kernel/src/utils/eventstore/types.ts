@@ -1,10 +1,15 @@
+import EventEmitter from "events";
+
 export type ExtractEventId<T> = (event: T) => string;
 
-export interface EventStore<T>
-  extends AppendOnlyEventStore<T>,
-    ReadOnlyEventStore<T> {}
+export type EventStoreEventMap<T> = {
+  append: [event: T];
+  error: [error: unknown];
+};
 
-export interface AppendOnlyEventStore<T> {
+export interface EventStore<T>
+  extends ReadOnlyEventStore<T>,
+    EventEmitter<EventStoreEventMap<T>> {
   append(event: T): Promise<void>;
 }
 

@@ -1,12 +1,23 @@
 import assert from "assert";
+import EventEmitter from "events";
 import { EventStoreError } from "./EventStoreError";
-import { EventStore, EventStoreReadOptions, ExtractEventId } from "./types";
+import {
+  EventStore,
+  EventStoreEventMap,
+  EventStoreReadOptions,
+  ExtractEventId,
+} from "./types";
 
-export class InMemoryEventStore<T> implements EventStore<T> {
+export class InMemoryEventStore<T>
+  extends EventEmitter<EventStoreEventMap<T>>
+  implements EventStore<T>
+{
   private events: T[] = [];
   private indexes = new Map<string, number>();
 
-  constructor(private extractEventId: ExtractEventId<T>) {}
+  constructor(private extractEventId: ExtractEventId<T>) {
+    super({ captureRejections: true });
+  }
 
   async append(event: T): Promise<void> {
     const eventId = this.extractEventId(event);
@@ -16,6 +27,11 @@ export class InMemoryEventStore<T> implements EventStore<T> {
     const index = this.events.length;
     this.events.push(event);
     this.indexes.set(eventId, index);
+    try {
+      this.emit("append", event);
+    } catch (error) {
+      this.emit("error", error);
+    }
   }
 
   private indexOf(eventId: string): number {
