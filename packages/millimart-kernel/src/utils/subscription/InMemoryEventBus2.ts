@@ -1,63 +1,47 @@
-import { randomUUID } from "crypto";
-import { EventStore, ExtractEventId } from "../eventstore";
-import { fromAsync } from "../misc";
+import { SubscriptionError } from ".";
+import { EventStore } from "../eventstore";
 import { CallbackChannel } from "./CallbackChannel";
 import { InMemorySubscriptionManager } from "./InMemorySubscriptionManager";
-import { Channel, EventBus2, SubscriptionManager } from "./types";
+import { RandomSubscriptionIdFactory } from "./RandomSubscriptionIdFactory";
+import { SubscriptionResend, SubscriptionStatus } from "./SubscriptionSchema";
+import {
+  Channel,
+  EventBus2,
+  SubscriptionIdFactory,
+  SubscriptionManager,
+} from "./types";
 
 export type InMemoryEventBus2Props<E> = {
   source: string;
   store: EventStore<E>;
-  extractEventId: ExtractEventId<E>;
-  generateSubscriptionId?: () => string;
+  subscriptionIdFactory?: SubscriptionIdFactory;
 };
 
 export class InMemoryEventBus2<E> implements EventBus2<E> {
-  private _subscriptions: SubscriptionManager;
   private _channels = new Map<string, Channel<E>>();
-  private lastEventId: string | undefined = undefined;
+  private _subscriptions = this.createSubscriptionManager();
   private generateSubscriptionId: () => string;
+  private lastEventId: string | undefined = undefined;
 
   constructor(private props: InMemoryEventBus2Props<E>) {
     // TODO Remove listener when event bus disposed.
     this.props.store.on("append", async (event) => {
-      const eventId = this.props.extractEventId(event);
-      if (!this.lastEventId) {
-        this.lastEventId = await this.readLastEventId(eventId);
+      this.lastEventId = this.props.store.extractEventId(event);
+      for (const subscription of this._subscriptions) {
+        if (subscription.status.lastEventId !== this.lastEventId) {
+          continue;
+        }
+        const channel = this._channels.get(subscription.sink);
+        if (channel === undefined) {
+          continue;
+        }
+        channel.emit("newEvent");
       }
     });
 
-    this._subscriptions = new InMemorySubscriptionManager({
-      resend: () => {
-        return {}; // TODO
-      },
-      subscribe: ({ sink, config }) => {
-        const id = this.generateSubscriptionId();
-        const subscription = { id, sink, config, status: {} }; // TODO
-        const channel = new CallbackChannel<E>({
-          sink,
-          callback: async () => {
-            return undefined as any; // TODO
-          },
-        });
-        this._channels.set(sink, channel);
-        return subscription;
-      },
-      unsubscribe: (id) => {
-        const subscription = this._subscriptions.get(id);
-        if (!subscription) {
-          return;
-        }
-        this._channels.delete(subscription.sink);
-      },
-    });
-
-    this.generateSubscriptionId =
-      props.generateSubscriptionId ??
-      (() => {
-        const id = randomUUID().toString();
-        return this._subscriptions.has(id) ? this.generateSubscriptionId() : id;
-      });
+    this.generateSubscriptionId = this.props.subscriptionIdFactory
+      ? this.props.subscriptionIdFactory(this._subscriptions)
+      : RandomSubscriptionIdFactory(this._subscriptions);
   }
 
   get channels(): ReadonlyMap<string, Channel<E>> {
@@ -76,19 +60,79 @@ export class InMemoryEventBus2<E> implements EventBus2<E> {
     return this._subscriptions;
   }
 
-  private async readLastEventId(
-    fromEventId: string | undefined,
-  ): Promise<string | undefined> {
-    const lastEvent = (
-      await fromAsync(
-        this.props.store.read({
-          direction: "backwards",
-          fromEventId,
-          skipCount: 1,
-          maxCount: 1,
-        }),
-      )
-    ).at(0);
-    return lastEvent ? this.props.extractEventId(lastEvent) : undefined;
+  private createChannel(sink: string): Channel<E> {
+    const channel = new CallbackChannel<E>({
+      sink,
+      receiveCallback: async (sink) => await this.handleChannelCallback(sink),
+    });
+    channel.on("receive", (event) => {
+      if (event === undefined) {
+        return;
+      }
+      const subscription = this._subscriptions.getBySink(sink);
+      if (subscription === undefined) {
+        return;
+      }
+      const id = subscription.id;
+      const lastEventId = this.props.store.extractEventId(event);
+      this._subscriptions.setStatus(id, { lastEventId });
+    });
+    return channel;
+  }
+
+  private async handleChannelCallback(sink: string): Promise<E | undefined> {
+    const subscription = this._subscriptions.getBySink(sink);
+    if (subscription === undefined) {
+      return;
+    }
+    const lastEventId = subscription.status.lastEventId;
+    return lastEventId
+      ? await this.store.readNextOne(lastEventId)
+      : await this.store.readFirstOne();
+  }
+
+  private createSubscriptionManager(): SubscriptionManager {
+    return new InMemorySubscriptionManager({
+      resend: async (resend) => {
+        return await this.handleResend(resend);
+      },
+      subscribe: async ({ sink, config, resend }) => {
+        const id = this.generateSubscriptionId();
+        const status = resend ? await this.handleResend(resend) : {};
+        const subscription = { id, sink, config: config ?? {}, status };
+        this._channels.set(sink, this.createChannel(sink));
+        return subscription;
+      },
+      unsubscribe: (id) => {
+        const subscription = this._subscriptions.getById(id);
+        this._channels.delete(subscription!.sink);
+      },
+    });
+  }
+
+  private async handleResend(
+    resend: SubscriptionResend,
+  ): Promise<SubscriptionStatus> {
+    switch (resend.from) {
+      case "First":
+        return {};
+      case "Next":
+        if (resend.lastEventId) {
+          const lastEvent = await this.store.readOne(resend.lastEventId);
+          if (lastEvent === undefined) {
+            throw new SubscriptionError("NoEventError", {
+              eventId: resend.lastEventId,
+            });
+          }
+          return { lastEventId: resend.lastEventId };
+        } else {
+          const lastEvent = await this.store.readLastOne();
+          return {
+            lastEventId: lastEvent
+              ? this.store.extractEventId(lastEvent)
+              : undefined,
+          };
+        }
+    }
   }
 }

@@ -3,7 +3,7 @@ import { EventHandler } from "../eventbus";
 import { Channel, ChannelEventMap } from "./types";
 
 export type CallbackChannelProps<E> = {
-  callback: (sink: string) => E | Promise<E>; // TODO Allow undefined.
+  receiveCallback: (sink: string) => (E | undefined) | Promise<E | undefined>;
   sink: string;
 };
 
@@ -19,10 +19,13 @@ export class CallbackChannel<E>
     return this.props.sink;
   }
 
-  async receive(handler: EventHandler<E>): Promise<void> {
-    // TODO Consider undefined
-    const event = await this.props.callback(this.sink);
-    handler(event);
+  async receive(handler: EventHandler<E>): Promise<boolean> {
+    const event = await this.props.receiveCallback(this.sink);
+    if (event === undefined) {
+      return false;
+    }
+    await handler(event);
     this.emit("receive", event);
+    return true;
   }
 }

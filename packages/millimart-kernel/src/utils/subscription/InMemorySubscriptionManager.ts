@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+import { SubscriptionError } from "./SubscriptionError";
 import {
   Subscription,
   SubscriptionRequest,
@@ -8,8 +9,8 @@ import {
 import { SubscriptionManager, SubscriptionManagerEventMap } from "./types";
 
 export type InMemorySubscriptionManagerProps = {
-  resend: (id: string, resend: SubscriptionResend) => SubscriptionStatus;
-  subscribe: (request: SubscriptionRequest) => Subscription;
+  resend: (resend: SubscriptionResend) => Promise<SubscriptionStatus>;
+  subscribe: (request: SubscriptionRequest) => Promise<Subscription>;
   unsubscribe: (id: string) => void;
 };
 
@@ -17,55 +18,84 @@ export class InMemorySubscriptionManager
   extends EventEmitter<SubscriptionManagerEventMap>
   implements SubscriptionManager
 {
-  private map = new Map<string, Subscription>();
+  private mapById = new Map<string, Subscription>();
+  private mapBySink = new Map<string, Subscription>();
 
   constructor(private props: InMemorySubscriptionManagerProps) {
     super({ captureRejections: true });
   }
 
-  get(id: string): Subscription | undefined {
-    return this.map.get(id);
+  getById(id: string): Subscription | undefined {
+    return this.mapById.get(id);
   }
 
-  has(id: string): boolean {
-    return this.map.has(id);
+  getBySink(sink: string): Subscription | undefined {
+    return this.mapBySink.get(sink);
   }
 
-  subscribe(request: SubscriptionRequest): Subscription {
-    const subscription = this.props.subscribe(request);
-    this.map.set(subscription.id, subscription);
+  hasById(id: string): boolean {
+    return this.mapById.has(id);
+  }
+
+  hasBySink(sink: string): boolean {
+    return this.mapBySink.has(sink);
+  }
+
+  async setResend(
+    id: string,
+    resend: SubscriptionResend,
+  ): Promise<Subscription> {
+    const oldSubscription = this.mapById.get(id);
+    if (!oldSubscription) {
+      throw new SubscriptionError("NoSubscriptionError", {
+        subscriptionId: id,
+      });
+    }
+    const status = await this.props.resend(resend);
+    const newSubscription = this.setStatus(id, status);
+    this.emit("setResend", newSubscription);
+    return newSubscription;
+  }
+
+  setStatus(id: string, status: SubscriptionStatus): Subscription {
+    const oldSubscription = this.mapById.get(id);
+    if (!oldSubscription) {
+      throw new SubscriptionError("NoSubscriptionError", {
+        subscriptionId: id,
+      });
+    }
+    const newSubscription = { ...oldSubscription, status };
+    this.mapById.set(id, newSubscription);
+    this.mapBySink.set(newSubscription.sink, newSubscription);
+    this.emit("setStatus", newSubscription);
+    return newSubscription;
+  }
+
+  async subscribe(request: SubscriptionRequest): Promise<Subscription> {
+    if (this.mapBySink.has(request.sink)) {
+      throw new SubscriptionError("DuplicateSinkError", { sink: request.sink });
+    }
+    const subscription = await this.props.subscribe(request);
+    this.mapById.set(subscription.id, subscription);
+    this.mapBySink.set(subscription.sink, subscription);
     this.emit("subscribe", subscription);
     return subscription;
   }
 
-  resend(id: string, resend: SubscriptionResend): void {
-    const subscription = this.map.get(id);
-    if (subscription) {
-      const status = this.props.resend(id, resend);
-      this.update(id, status);
-    }
-  }
-
-  update(id: string, status: SubscriptionStatus): void {
-    const oldSubscription = this.map.get(id);
-    if (!oldSubscription) {
-      return;
-    }
-    const newSubscription = { ...oldSubscription, status };
-    this.map.set(id, newSubscription);
-    this.emit("update", newSubscription);
-  }
-
   unsubscribe(id: string): void {
-    if (!this.map.has(id)) {
-      return;
+    const subscription = this.mapById.get(id);
+    if (!subscription) {
+      throw new SubscriptionError("NoSubscriptionError", {
+        subscriptionId: id,
+      });
     }
     this.props.unsubscribe(id);
-    this.map.delete(id);
+    this.mapById.delete(id);
+    this.mapBySink.delete(subscription.sink);
     this.emit("unsubscribe", id);
   }
 
   [Symbol.iterator](): Iterator<Subscription> {
-    return this.map.values();
+    return this.mapById.values();
   }
 }

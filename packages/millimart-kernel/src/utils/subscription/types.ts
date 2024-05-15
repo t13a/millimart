@@ -1,5 +1,6 @@
 import EventEmitter from "events";
-import { EventHandler, EventStore } from "..";
+import { EventHandler } from "../eventbus";
+import { EventStore } from "../eventstore";
 import {
   Subscription,
   SubscriptionRequest,
@@ -15,28 +16,38 @@ export interface EventBus2<E> {
 }
 
 export type SubscriptionManagerEventMap = {
-  resend: [id: string, resend: SubscriptionResend];
+  setResend: [subscription: Subscription];
+  setStatus: [subscription: Subscription];
   subscribe: [subscription: Subscription];
   unsubscribe: [id: string];
-  update: [subscription: Subscription];
 };
 
 export interface SubscriptionManager
-  extends EventEmitter<SubscriptionManagerEventMap>,
-    Iterable<Subscription> {
-  get(id: string): Subscription | undefined;
-  has(id: string): boolean;
-  resend(id: string, resend: SubscriptionResend): void;
-  subscribe(request: SubscriptionRequest): Subscription;
+  extends ReadonlySubscriptionManager,
+    EventEmitter<SubscriptionManagerEventMap> {
+  setResend(id: string, resend: SubscriptionResend): Promise<Subscription>;
+  setStatus(id: string, status: SubscriptionStatus): Subscription;
+  subscribe(request: SubscriptionRequest): Promise<Subscription>;
   unsubscribe(id: string): void;
-  update(id: string, status: SubscriptionStatus): void;
 }
 
+export interface ReadonlySubscriptionManager extends Iterable<Subscription> {
+  getById(id: string): Subscription | undefined;
+  getBySink(sink: string): Subscription | undefined;
+  hasById(id: string): boolean;
+  hasBySink(sink: string): boolean;
+}
+
+export type SubscriptionIdFactory = (
+  subscriptions: ReadonlySubscriptionManager,
+) => () => string;
+
 export type ChannelEventMap<E> = {
-  receive: [event: E];
+  newEvent: []; // WIP
+  receive: [event: E | undefined];
 };
 
 export interface Channel<E> extends EventEmitter<ChannelEventMap<E>> {
-  receive(handler: EventHandler<E>): Promise<void>;
+  receive(handler: EventHandler<E>): Promise<boolean>;
   sink: string;
 }

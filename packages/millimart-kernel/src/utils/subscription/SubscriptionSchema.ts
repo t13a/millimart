@@ -10,10 +10,7 @@ export const SubscriptionResendSchema = z.union([
   }),
   z.object({
     from: z.literal("Next"),
-    eventId: z.string().min(1),
-  }),
-  z.object({
-    from: z.literal("Last"),
+    lastEventId: z.string().min(1).optional(),
   }),
 ]);
 
@@ -33,6 +30,6 @@ export type Subscription = z.infer<typeof SubscriptionSchema>;
 export const SubscriptionSchema = z.object({
   id: z.string().min(1),
   sink: z.string().min(1),
-  config: SubscriptionConfigSchema.optional(),
+  config: SubscriptionConfigSchema,
   status: SubscriptionStatusSchema,
 });
