@@ -14,6 +14,7 @@ export interface EventStore<T>
 }
 
 export interface ReadOnlyEventStore<T> {
+  readonly extractEventId: ExtractEventId<T>;
   read(options?: EventStoreReadOptions): AsyncIterable<T>;
   readOne(eventId: string): Promise<T>;
 }

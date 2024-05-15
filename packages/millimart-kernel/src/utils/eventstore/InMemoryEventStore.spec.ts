@@ -79,6 +79,16 @@ describe("InMemoryEventStore", () => {
     });
   });
 
+  describe("extractEventId", () => {
+    it("returns an event ID from an event", () => {
+      const store: EventStore<TestEvent> = new InMemoryEventStore((e) => e.id);
+
+      const e1 = { id: "1", data: "A" };
+
+      expect(store.extractEventId(e1)).toBe("1");
+    });
+  });
+
   describe("read", () => {
     let store: EventStore<TestEvent>;
     const e1 = { id: "1", data: "A" };

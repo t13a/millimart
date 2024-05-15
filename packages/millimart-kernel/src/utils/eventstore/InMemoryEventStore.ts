@@ -15,7 +15,7 @@ export class InMemoryEventStore<T>
   private events: T[] = [];
   private indexes = new Map<string, number>();
 
-  constructor(private extractEventId: ExtractEventId<T>) {
+  constructor(readonly extractEventId: ExtractEventId<T>) {
     super({ captureRejections: true });
   }
 
