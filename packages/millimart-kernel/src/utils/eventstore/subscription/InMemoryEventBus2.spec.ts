@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SubscriptionError } from ".";
-import { InMemoryEventStore } from "../eventstore";
+import { InMemoryEventStore } from "..";
 import { InMemoryEventBus2 } from "./InMemoryEventBus2";
 import { SequentialSubscriptionIdFactory } from "./SequentialSubscriptionIdFactory";
 

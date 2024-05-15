@@ -1,5 +1,5 @@
 import { SubscriptionError } from ".";
-import { EventStore } from "../eventstore";
+import { EventStore } from "..";
 import { CallbackChannel } from "./CallbackChannel";
 import { InMemorySubscriptionManager } from "./InMemorySubscriptionManager";
 import { RandomSubscriptionIdFactory } from "./RandomSubscriptionIdFactory";

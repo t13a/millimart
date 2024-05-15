@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { EventHandler } from "../eventbus";
+import { EventHandler } from "../../eventbus";
 import { Channel, ChannelEventMap } from "./types";
 
 export type CallbackChannelProps<E> = {

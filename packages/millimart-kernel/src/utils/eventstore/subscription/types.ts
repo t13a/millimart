@@ -1,6 +1,6 @@
 import EventEmitter from "events";
-import { EventHandler } from "../eventbus";
-import { EventStore } from "../eventstore";
+import { EventStore } from "..";
+import { EventHandler } from "../../eventbus";
 import {
   Subscription,
   SubscriptionRequest,
