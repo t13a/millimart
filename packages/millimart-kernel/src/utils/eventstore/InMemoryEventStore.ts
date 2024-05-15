@@ -91,6 +91,28 @@ export class InMemoryEventStore<T>
     )(this.events);
   }
 
+  async readFirstOne(): Promise<T | undefined> {
+    return (
+      await fromAsync(
+        this.read({
+          direction: "forwards",
+          maxCount: 1,
+        }),
+      )
+    ).at(0);
+  }
+
+  async readLastOne(): Promise<T | undefined> {
+    return (
+      await fromAsync(
+        this.read({
+          direction: "backwards",
+          maxCount: 1,
+        }),
+      )
+    ).at(0);
+  }
+
   async readNextOne(eventId: string): Promise<T | undefined> {
     return (
       await fromAsync(

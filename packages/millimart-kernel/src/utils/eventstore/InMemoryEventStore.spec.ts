@@ -368,6 +368,46 @@ describe("InMemoryEventStore", () => {
     });
   });
 
+  describe("readFirstOne", () => {
+    it("returns the first event", async () => {
+      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+
+      const e1 = { id: "1", data: "A" };
+      const e2 = { id: "2", data: "B" };
+      const e3 = { id: "3", data: "C" };
+      await store.append(e1);
+      await store.append(e2);
+      await store.append(e3);
+
+      expect(await store.readFirstOne()).toStrictEqual(e1);
+    });
+
+    it("returns nothing if there is no event", async () => {
+      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+      expect(await store.readFirstOne()).toBeUndefined();
+    });
+  });
+
+  describe("readLastOne", () => {
+    it("returns the last event", async () => {
+      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+
+      const e1 = { id: "1", data: "A" };
+      const e2 = { id: "2", data: "B" };
+      const e3 = { id: "3", data: "C" };
+      await store.append(e1);
+      await store.append(e2);
+      await store.append(e3);
+
+      expect(await store.readLastOne()).toStrictEqual(e3);
+    });
+
+    it("returns nothing if there is no event", async () => {
+      const store = new InMemoryEventStore<TestEvent>((event) => event.id);
+      expect(await store.readLastOne()).toBeUndefined();
+    });
+  });
+
   describe("readNextOne", () => {
     let store: EventStore<TestEvent>;
     const e1 = { id: "1", data: "A" };
