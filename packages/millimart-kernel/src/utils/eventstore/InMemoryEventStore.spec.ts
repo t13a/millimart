@@ -379,16 +379,14 @@ describe("InMemoryEventStore", () => {
       [e1, e2, e3].forEach(async (e) => await store.append(e));
     });
 
-    it("returns the specified event", async () => {
+    it("returns the event by ID", async () => {
       expect(await store.readOne("1")).toStrictEqual(e1);
       expect(await store.readOne("2")).toStrictEqual(e2);
       expect(await store.readOne("3")).toStrictEqual(e3);
     });
 
-    it("throws an error if event not found", async () => {
-      await expect(async () => await store.readOne("4")).rejects.toBeInstanceOf(
-        EventStoreError,
-      );
+    it("returns nothing if the event does not exist", async () => {
+      expect(await store.readOne("4")).toBeUndefined();
     });
   });
 });

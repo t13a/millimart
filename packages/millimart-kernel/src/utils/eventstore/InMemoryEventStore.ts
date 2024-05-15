@@ -34,7 +34,7 @@ export class InMemoryEventStore<T>
     }
   }
 
-  private indexOf(eventId: string): number {
+  private indexOfThrow(eventId: string): number {
     const index = this.indexes.get(eventId);
     if (index === undefined) {
       throw new EventStoreError("NotFoundError", { eventId });
@@ -47,14 +47,14 @@ export class InMemoryEventStore<T>
 
     const startIndex =
       options?.fromEventId !== undefined
-        ? this.indexOf(options.fromEventId)
+        ? this.indexOfThrow(options.fromEventId)
         : direction === "forwards"
           ? 0
           : this.events.length - 1;
 
     const endIndex =
       options?.toEventId !== undefined
-        ? this.indexOf(options.toEventId)
+        ? this.indexOfThrow(options.toEventId)
         : direction === "forwards"
           ? this.events.length - 1
           : 0;
@@ -90,8 +90,11 @@ export class InMemoryEventStore<T>
     )(this.events);
   }
 
-  async readOne(eventId: string): Promise<T> {
-    const index = this.indexOf(eventId);
+  async readOne(eventId: string): Promise<T | undefined> {
+    const index = this.indexes.get(eventId);
+    if (index === undefined) {
+      return undefined;
+    }
     return this.events[index];
   }
 }
