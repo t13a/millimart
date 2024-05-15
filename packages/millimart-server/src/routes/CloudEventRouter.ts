@@ -86,13 +86,11 @@ export const CloudEventRouter = <CE extends CloudEvent>({
     }),
     async (req, res) => {
       const eventId = req.params.eventId;
-      const result = await tryCatchIntoResultAsync(() =>
-        store.readOne(eventId),
-      );
-      if (!result.ok) {
-        return res.status(400).send(result.err);
+      const event = await store.readOne(eventId);
+      if (event === undefined) {
+        return res.status(400).send(event);
       }
-      const message = new CloudEventEncoder(result.val).toMessage();
+      const message = new CloudEventEncoder(event).toMessage();
       return res.status(200).set(message.headers).send(message.body);
     },
   );
