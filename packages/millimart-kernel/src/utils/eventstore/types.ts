@@ -16,7 +16,9 @@ export interface EventStore<T>
 export interface ReadOnlyEventStore<T> {
   readonly extractEventId: ExtractEventId<T>;
   read(options?: EventStoreReadOptions): AsyncIterable<T>;
+  readNextOne(eventId: string): Promise<T | undefined>;
   readOne(eventId: string): Promise<T | undefined>;
+  readPrevOne(eventId: string): Promise<T | undefined>;
 }
 
 export type EventStoreReadOptions = {

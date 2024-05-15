@@ -1,5 +1,6 @@
 import assert from "assert";
 import EventEmitter from "events";
+import { fromAsync } from "../misc";
 import { EventStoreError } from "./EventStoreError";
 import {
   EventStore,
@@ -90,11 +91,37 @@ export class InMemoryEventStore<T>
     )(this.events);
   }
 
+  async readNextOne(eventId: string): Promise<T | undefined> {
+    return (
+      await fromAsync(
+        this.read({
+          direction: "forwards",
+          fromEventId: eventId,
+          skipCount: 1,
+          maxCount: 1,
+        }),
+      )
+    ).at(0);
+  }
+
   async readOne(eventId: string): Promise<T | undefined> {
     const index = this.indexes.get(eventId);
     if (index === undefined) {
       return undefined;
     }
     return this.events[index];
+  }
+
+  async readPrevOne(eventId: string): Promise<T | undefined> {
+    return (
+      await fromAsync(
+        this.read({
+          direction: "backwards",
+          fromEventId: eventId,
+          skipCount: 1,
+          maxCount: 1,
+        }),
+      )
+    ).at(0);
   }
 }

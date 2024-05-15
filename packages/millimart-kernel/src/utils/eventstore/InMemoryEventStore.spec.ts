@@ -368,6 +368,27 @@ describe("InMemoryEventStore", () => {
     });
   });
 
+  describe("readNextOne", () => {
+    let store: EventStore<TestEvent>;
+    const e1 = { id: "1", data: "A" };
+    const e2 = { id: "2", data: "B" };
+    const e3 = { id: "3", data: "C" };
+
+    beforeEach(async () => {
+      store = new InMemoryEventStore<TestEvent>((event) => event.id);
+      [e1, e2, e3].forEach(async (e) => await store.append(e));
+    });
+
+    it("returns the next event by ID", async () => {
+      expect(await store.readNextOne("1")).toStrictEqual(e2);
+      expect(await store.readNextOne("2")).toStrictEqual(e3);
+    });
+
+    it("returns nothing if the next event does not exist", async () => {
+      expect(await store.readNextOne("3")).toBeUndefined();
+    });
+  });
+
   describe("readOne", () => {
     let store: EventStore<TestEvent>;
     const e1 = { id: "1", data: "A" };
@@ -387,6 +408,27 @@ describe("InMemoryEventStore", () => {
 
     it("returns nothing if the event does not exist", async () => {
       expect(await store.readOne("4")).toBeUndefined();
+    });
+  });
+
+  describe("readPrevOne", () => {
+    let store: EventStore<TestEvent>;
+    const e1 = { id: "1", data: "A" };
+    const e2 = { id: "2", data: "B" };
+    const e3 = { id: "3", data: "C" };
+
+    beforeEach(async () => {
+      store = new InMemoryEventStore<TestEvent>((event) => event.id);
+      [e1, e2, e3].forEach(async (e) => await store.append(e));
+    });
+
+    it("returns the previous event by ID", async () => {
+      expect(await store.readPrevOne("2")).toStrictEqual(e1);
+      expect(await store.readPrevOne("3")).toStrictEqual(e2);
+    });
+
+    it("returns nothing if the previous event does not exist", async () => {
+      expect(await store.readPrevOne("1")).toBeUndefined();
     });
   });
 });
