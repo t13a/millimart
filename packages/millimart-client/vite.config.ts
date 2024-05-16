@@ -4,15 +4,5 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [
-    nodePolyfills({
-      globals: {
-        Buffer: "dev",
-        global: "dev",
-        process: "dev",
-      },
-    }),
-    react(),
-    tsconfigPaths(),
-  ],
+  plugins: [nodePolyfills(), react(), tsconfigPaths()],
 });
