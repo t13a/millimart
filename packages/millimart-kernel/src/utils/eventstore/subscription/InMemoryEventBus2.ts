@@ -35,7 +35,7 @@ export class InMemoryEventBus2<E> implements EventBus2<E> {
         if (channel === undefined) {
           continue;
         }
-        channel.emit("newEvent");
+        channel.emit("send", event);
       }
     });
 
@@ -62,13 +62,11 @@ export class InMemoryEventBus2<E> implements EventBus2<E> {
 
   private createChannel(sink: string): Channel<E> {
     const channel = new CallbackChannel<E>({
+      receiveCallback: () => this.handleReceive(sink),
+      sendCallback: () => {}, // Do nothing
       sink,
-      receiveCallback: async (sink) => await this.handleChannelCallback(sink),
     });
     channel.on("receive", (event) => {
-      if (event === undefined) {
-        return;
-      }
       const subscription = this._subscriptions.getBySink(sink);
       if (subscription === undefined) {
         return;
@@ -80,7 +78,7 @@ export class InMemoryEventBus2<E> implements EventBus2<E> {
     return channel;
   }
 
-  private async handleChannelCallback(sink: string): Promise<E | undefined> {
+  private async handleReceive(sink: string): Promise<E | undefined> {
     const subscription = this._subscriptions.getBySink(sink);
     if (subscription === undefined) {
       return;

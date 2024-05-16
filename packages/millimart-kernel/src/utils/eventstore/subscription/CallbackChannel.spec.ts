@@ -8,13 +8,14 @@ type TestEvent = {
 
 describe("CallbackChannel", () => {
   describe("receive", () => {
-    it("handles an events", async () => {
+    it("consumes an event", async () => {
       const events: TestEvent[] = [
         { type: "foo", data: {} },
         { type: "bar", data: {} },
       ];
       const channel = new CallbackChannel({
         receiveCallback: () => events.shift(),
+        sendCallback: (e) => events.push(e),
         sink: "/",
       });
 
@@ -29,6 +30,9 @@ describe("CallbackChannel", () => {
       const events: TestEvent[] = [];
       const channel = new CallbackChannel({
         receiveCallback: () => events.shift(),
+        sendCallback: (e) => {
+          events.push(e);
+        },
         sink: "/",
       });
 
@@ -37,6 +41,28 @@ describe("CallbackChannel", () => {
 
       expect(result).toStrictEqual([]);
       expect(received).toBe(false);
+    });
+  });
+
+  describe("send", () => {
+    it("produces an event", async () => {
+      const events: TestEvent[] = [
+        { type: "foo", data: {} },
+        { type: "bar", data: {} },
+      ];
+      const channel = new CallbackChannel({
+        receiveCallback: () => events.shift(),
+        sendCallback: (e) => events.push(e),
+        sink: "/",
+      });
+
+      await channel.send({ type: "baz", data: {} });
+
+      expect(events).toStrictEqual([
+        { type: "foo", data: {} },
+        { type: "bar", data: {} },
+        { type: "baz", data: {} },
+      ]);
     });
   });
 });

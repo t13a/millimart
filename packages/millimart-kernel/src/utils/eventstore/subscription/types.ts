@@ -43,11 +43,19 @@ export type SubscriptionIdFactory = (
 ) => () => string;
 
 export type ChannelEventMap<E> = {
-  newEvent: []; // WIP
-  receive: [event: E | undefined];
+  send: [event: E];
+  receive: [event: E];
 };
 
-export interface Channel<E> extends EventEmitter<ChannelEventMap<E>> {
+export interface Channel<E> extends SendOnlyChannel<E>, ReceiveOnlyChannel<E> {}
+
+export interface SendOnlyChannel<E> extends EventEmitter<ChannelEventMap<E>> {
+  send(event: E): Promise<void>;
+  sink: string;
+}
+
+export interface ReceiveOnlyChannel<E>
+  extends EventEmitter<ChannelEventMap<E>> {
   receive(handler: EventHandler<E>): Promise<boolean>;
   sink: string;
 }
