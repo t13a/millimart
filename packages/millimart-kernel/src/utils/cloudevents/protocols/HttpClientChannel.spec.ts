@@ -57,7 +57,7 @@ describe("HttpClientChannel", () => {
 
   describe("send", () => {
     it("sends an event as HTTP request", async () => {
-      const channel = new HttpClientChannel(`http://localhost:${port}`);
+      const channel = new HttpClientChannel("/", `http://localhost:${port}`);
 
       await channel.send(reqEvent);
 
@@ -80,37 +80,47 @@ describe("HttpClientChannel", () => {
       assert(reqBody);
       expect(reqBody).toBe('{"message":"This is a request"}');
     });
+
+    it("emits an event after sent", async () => {
+      const channel = new HttpClientChannel("/", `http://localhost:${port}`);
+
+      const result: CloudEvent[] = [];
+      channel.on("send", (event) => result.push(event));
+
+      await channel.send(reqEvent);
+
+      expect(result.length).toBe(1);
+      expect(result[0]).toStrictEqual(reqEvent);
+    });
   });
 
   describe("receive", () => {
     it("receives an event as HTTP response", async () => {
-      const result: CloudEvent[] = [];
-      const channel = new HttpClientChannel(`http://localhost:${port}`, {
+      const channel = new HttpClientChannel("/", `http://localhost:${port}`, {
         receive: true,
         schema: CloudEventSchema,
       });
-      channel.receive((e) => result.push(e));
 
       await channel.send(reqEvent);
 
-      assert(reqHeaders);
-      expect(
-        Object.fromEntries(
-          Object.entries(reqHeaders).filter(
-            ([k, _v]) => k.startsWith("ce-") || k === "content-type",
-          ),
-        ),
-      ).toStrictEqual({
-        "ce-id": "123",
-        "ce-source": "request.example.com",
-        "ce-specversion": "1.0",
-        "ce-time": "2006-01-02T15:04:05.000Z",
-        "ce-type": "com.example.v1.Greeting",
-        "content-type": "application/json",
+      const result: CloudEvent[] = [];
+      await channel.receive((e) => result.push(e));
+
+      expect(result.length).toBe(1);
+      expect(result[0]).toStrictEqual(resEvent);
+    });
+
+    it("emits an event after received", async () => {
+      const channel = new HttpClientChannel("/", `http://localhost:${port}`, {
+        receive: true,
+        schema: CloudEventSchema,
       });
 
-      assert(reqBody);
-      expect(reqBody).toBe('{"message":"This is a request"}');
+      const result: CloudEvent[] = [];
+      channel.on("receive", (event) => result.push(event));
+
+      await channel.send(reqEvent);
+      await channel.receive(() => {});
 
       expect(result.length).toBe(1);
       expect(result[0]).toStrictEqual(resEvent);

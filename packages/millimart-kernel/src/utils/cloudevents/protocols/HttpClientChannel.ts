@@ -1,6 +1,7 @@
-import assert from "assert";
+import { EventEmitter } from "events";
 import { ZodType } from "zod";
-import { EventChannel, EventHandler } from "../../../utils/eventbus";
+import { EventHandler } from "../../../utils/eventbus";
+import { Channel, ChannelEventMap } from "../../eventstore/subscription";
 import { CloudEvent } from "../CloudEventSchema";
 import { CloudEventDecoder } from "./CloudEventDecoder";
 import {
@@ -33,19 +34,30 @@ type HttpClientChannelReceiveOptions<
 };
 
 export class HttpClientChannel<
-  CE extends CloudEvent,
-  Schema extends ZodType<CE>,
-> implements EventChannel<CE>
+    CE extends CloudEvent,
+    Schema extends ZodType<CE>,
+  >
+  extends EventEmitter<ChannelEventMap<CE>>
+  implements Channel<CE>
 {
-  private receiveHandler: EventHandler<CE> | undefined;
+  private receivedEvents: CE[] = [];
 
   constructor(
-    private url: string | URL,
+    readonly sink: string,
+    private url: string,
     private options?: HttpClientChannelOptions<CE, Schema>,
-  ) {}
+  ) {
+    super({ captureRejections: true });
+  }
 
-  receive(handler: EventHandler<CE> | undefined): void {
-    this.receiveHandler = handler;
+  async receive(handler: EventHandler<CE>): Promise<boolean> {
+    const event = this.receivedEvents.shift();
+    if (!event) {
+      return false;
+    }
+    await handler(event);
+    this.emit("receive", event);
+    return true;
   }
 
   async send(event: CE): Promise<void> {
@@ -60,9 +72,9 @@ export class HttpClientChannel<
       const receivedEvent = await new CloudEventDecoder(
         this.options.schema,
       ).fromResponse(response);
-
-      assert(this.receiveHandler !== undefined);
-      await this.receiveHandler(receivedEvent);
+      this.receivedEvents.push(receivedEvent);
     }
+
+    this.emit("send", event);
   }
 }
