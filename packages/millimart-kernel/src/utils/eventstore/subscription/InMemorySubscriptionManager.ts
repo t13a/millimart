@@ -2,11 +2,12 @@ import EventEmitter from "events";
 import { SubscriptionError } from "./SubscriptionError";
 import {
   Subscription,
+  SubscriptionManager,
+  SubscriptionManagerEventMap,
   SubscriptionRequest,
   SubscriptionResend,
   SubscriptionStatus,
-} from "./SubscriptionSchema";
-import { SubscriptionManager, SubscriptionManagerEventMap } from "./types";
+} from "./types";
 
 export type InMemorySubscriptionManagerProps = {
   resend: (resend: SubscriptionResend) => Promise<SubscriptionStatus>;

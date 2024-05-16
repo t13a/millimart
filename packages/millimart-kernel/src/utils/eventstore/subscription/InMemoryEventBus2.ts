@@ -3,12 +3,13 @@ import { EventStore } from "..";
 import { CallbackChannel } from "./CallbackChannel";
 import { InMemorySubscriptionManager } from "./InMemorySubscriptionManager";
 import { RandomSubscriptionIdFactory } from "./RandomSubscriptionIdFactory";
-import { SubscriptionResend, SubscriptionStatus } from "./SubscriptionSchema";
 import {
   Channel,
   EventBus2,
   SubscriptionIdFactory,
   SubscriptionManager,
+  SubscriptionResend,
+  SubscriptionStatus,
 } from "./types";
 
 export type InMemoryEventBus2Props<E> = {

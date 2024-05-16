@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RandomSubscriptionIdFactory } from "./RandomSubscriptionIdFactory";
-import { Subscription } from "./SubscriptionSchema";
-import { ReadonlySubscriptionManager } from "./types";
+import { ReadonlySubscriptionManager, Subscription } from "./types";
 
 class StubReadonlySubscriptionManager implements ReadonlySubscriptionManager {
   constructor(private map: Map<string, Subscription>) {}

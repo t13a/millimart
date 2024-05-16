@@ -1,12 +1,6 @@
 import EventEmitter from "events";
 import { EventStore } from "..";
 import { EventHandler } from "../../eventbus";
-import {
-  Subscription,
-  SubscriptionRequest,
-  SubscriptionResend,
-  SubscriptionStatus,
-} from "./SubscriptionSchema";
 
 export interface EventBus2<E> {
   readonly channels: ReadonlyMap<string, Channel<E>>;
@@ -41,6 +35,34 @@ export interface ReadonlySubscriptionManager extends Iterable<Subscription> {
 export type SubscriptionIdFactory = (
   subscriptions: ReadonlySubscriptionManager,
 ) => () => string;
+
+export type Subscription = {
+  id: string;
+  sink: string;
+  config: SubscriptionConfig;
+  status: SubscriptionStatus;
+};
+
+export type SubscriptionRequest = {
+  sink: string;
+  config?: SubscriptionConfig;
+  resend?: SubscriptionResend;
+};
+
+export type SubscriptionConfig = Record<string, unknown>;
+
+export type SubscriptionResend =
+  | {
+      from: "First";
+    }
+  | {
+      from: "Next";
+      lastEventId?: string;
+    };
+
+export type SubscriptionStatus = {
+  lastEventId?: string;
+};
 
 export type ChannelEventMap<E> = {
   send: [event: E];
