@@ -8,12 +8,12 @@ export type EventStoreEventMap<T> = {
 };
 
 export interface EventStore<T>
-  extends ReadOnlyEventStore<T>,
+  extends ReadonlyEventStore<T>,
     EventEmitter<EventStoreEventMap<T>> {
   append(event: T): Promise<void>;
 }
 
-export interface ReadOnlyEventStore<T> {
+export interface ReadonlyEventStore<T> {
   readonly extractEventId: ExtractEventId<T>;
   read(options?: EventStoreReadOptions): AsyncIterable<T>;
   readFirstOne(): Promise<T | undefined>;

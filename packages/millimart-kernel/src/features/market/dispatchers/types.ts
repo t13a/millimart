@@ -1,9 +1,9 @@
-import { Dispatcher, ReadOnlyEventStore } from "../../../utils";
+import { Dispatcher, ReadonlyEventStore } from "../../../utils";
 import { MarketCommand } from "../MarketCommandSchema";
 import { MarketEvent } from "../MarketEventSchema";
 
 export type MarketCommandDispatcherContext = {
-  store: ReadOnlyEventStore<MarketEvent>;
+  store: ReadonlyEventStore<MarketEvent>;
   source: string;
 };
 

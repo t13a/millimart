@@ -1,6 +1,6 @@
 import assert from "assert";
 import { EventChannel, EventHandler } from "../eventbus";
-import { EventStore, ReadOnlyEventStore } from "../eventstore";
+import { EventStore, ReadonlyEventStore } from "../eventstore";
 import { Reducer, ReplayResult, useStream } from "../reducer";
 import { Actor } from "./types";
 
@@ -33,7 +33,7 @@ export abstract class ActorTemplate<T> implements Actor<T> {
     this.channel = undefined;
   }
 
-  protected get store(): ReadOnlyEventStore<T> {
+  protected get store(): ReadonlyEventStore<T> {
     return this.props.store;
   }
 
