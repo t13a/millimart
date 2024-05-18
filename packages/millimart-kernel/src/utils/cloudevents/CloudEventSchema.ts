@@ -19,13 +19,19 @@ export const CloudEventSchema = z.object({
   data_base64: coalesce(z.string().base64()),
 });
 
-export type CloudEventType<CE extends CloudEvent> = CE["type"];
-
-export type ExtractCloudEvent<
+export type CloudEventType<
   CE extends CloudEvent,
-  T extends CloudEventType<CE>,
-> = Extract<CE, { type: T }>;
+  TypePrefix extends string = "",
+> = CE["type"] extends `${TypePrefix}${infer U}` ? U : never;
 
-export type CloudEventMap<CE extends CloudEvent> = {
-  [T in CloudEventType<CE>]: ExtractCloudEvent<CE, T>;
+export type CloudEventMap<
+  CE extends CloudEvent,
+  TypePrefix extends string = "",
+> = {
+  [Type in CloudEventType<CE, TypePrefix>]: Extract<
+    CE,
+    {
+      type: `${TypePrefix}${Type}`;
+    }
+  >;
 };

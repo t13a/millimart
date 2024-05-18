@@ -1,26 +1,29 @@
-import {
-  CloudEvent,
-  CloudEventType,
-  ExtractCloudEvent,
-} from "./CloudEventSchema";
+import { CloudEvent, CloudEventMap, CloudEventType } from "./CloudEventSchema";
 
 export type CloudEventHandler<CE extends CloudEvent> = (
   event: CE,
 ) => unknown | Promise<unknown>;
 
-export type CloudEventHandlerMap<CE extends CloudEvent> = {
-  [T in CloudEventType<CE>]: CloudEventHandler<ExtractCloudEvent<CE, T>>;
+export type CloudEventHandlerMap<
+  CE extends CloudEvent,
+  TypePrefix extends string = "",
+> = {
+  [TypeName in CloudEventType<CE, TypePrefix>]: CloudEventHandler<
+    CloudEventMap<CE, TypePrefix>[TypeName]
+  >;
 };
 
 export const handleCloudEvent = async <
   CE extends CloudEvent,
-  T extends CloudEventType<CE>,
+  TypePrefix extends string,
+  TypeName extends CloudEventType<CE, TypePrefix>,
 >(
-  event: ExtractCloudEvent<CE, T>,
-  handlers: Partial<CloudEventHandlerMap<CE>>,
+  event: CloudEventMap<CE, TypePrefix>[TypeName],
+  typePrefix: TypePrefix,
+  handlers: Partial<CloudEventHandlerMap<CE, TypePrefix>>,
 ): Promise<void> => {
-  const type: T = event.type;
-  const handler: CloudEventHandlerMap<CE>[T] | undefined = handlers[type];
+  const typeName = event.type.substring(typePrefix.length) as TypeName;
+  const handler = handlers[typeName];
   if (!handler) {
     return;
   }

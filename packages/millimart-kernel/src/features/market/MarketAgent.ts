@@ -26,13 +26,12 @@ import {
 
 export class MarketAgent extends ActorTemplate<MarketEvent> {
   constructor(props: ActorTemplateProps<MarketEvent>) {
-    const p = MarketEventTypePrefix;
     const handler: EventHandler<MarketEvent> = async (event) => {
-      await handleCloudEvent(event, {
-        [`${p}ItemRegistered`]: async (e) => await this.handleItemRegistered(e),
-        [`${p}OrderConfirmed`]: async (e) => await this.handleOrderConfirmed(e),
-        [`${p}UserEntered`]: async (e) => await this.handleUserEntered(e),
-        [`${p}UserLeft`]: async (e) => await this.handleUserLeft(e),
+      await handleCloudEvent(event, MarketEventTypePrefix, {
+        ItemRegistered: async (e) => await this.handleItemRegistered(e),
+        OrderConfirmed: async (e) => await this.handleOrderConfirmed(e),
+        UserEntered: async (e) => await this.handleUserEntered(e),
+        UserLeft: async (e) => await this.handleUserLeft(e),
       });
     };
     super(handler, props);

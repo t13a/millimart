@@ -1,14 +1,5 @@
 import { uuidv7 } from "uuidv7";
-import {
-  CloudEvent,
-  CloudEventType,
-  ExtractCloudEvent,
-} from "./CloudEventSchema";
-
-export type ExtractCloudEventTypeName<
-  CE extends CloudEvent,
-  TypePrefix extends string,
-> = CloudEventType<CE> extends `${TypePrefix}${infer U}` ? U : string;
+import { CloudEvent, CloudEventMap, CloudEventType } from "./CloudEventSchema";
 
 export type CreateCloudEventFactoryPartialAttributes<CE extends CloudEvent> =
   Omit<CE, "id" | "specversion" | "type"> & Partial<Pick<CE, "id">>;
@@ -16,13 +7,12 @@ export type CreateCloudEventFactoryPartialAttributes<CE extends CloudEvent> =
 export const createCloudEventFactory =
   <CE extends CloudEvent, TypePrefix extends string>(typePrefix: TypePrefix) =>
   <
-    TypeName extends ExtractCloudEventTypeName<CE, TypePrefix>,
-    Type extends `${TypePrefix}${TypeName}`,
-    Attributes extends ExtractCloudEvent<CE, Type>,
+    TypeName extends CloudEventType<CE, TypePrefix>,
+    E extends CloudEventMap<CE, TypePrefix>[TypeName],
   >(
     typeName: TypeName,
-    partialAttributes: CreateCloudEventFactoryPartialAttributes<Attributes>,
-  ): Attributes => {
+    partialAttributes: CreateCloudEventFactoryPartialAttributes<E>,
+  ) => {
     const { id, source, time, ...rest } = partialAttributes;
     return {
       id: id ?? uuidv7(),
@@ -30,6 +20,6 @@ export const createCloudEventFactory =
       specversion: "1.0",
       type: `${typePrefix}${typeName}`,
       time: time ?? new Date().toISOString(),
-      ...(rest as any), // FIXME
-    };
+      ...rest,
+    } as E;
   };
