@@ -1,37 +1,29 @@
 import { ccy } from "../../..";
-import { useStream } from "../../../utils";
 import { MarketCommandError } from "../MarketCommandError";
 import { ConfirmOrderCommand } from "../MarketCommandSchema";
-import { ItemReducer, UserReducer } from "../reducers";
 import { createMarketEvent } from "../rules";
+import { MarketCommandDispatcherHelper } from "./MarketCommandDispatcherHelper";
 import { MarketCommandDispatcher } from "./types";
 
 export const ConfirmOrderCommandDispatcher: MarketCommandDispatcher<
   ConfirmOrderCommand
 > = ({ store, source }) =>
   async function* (command) {
-    const { replay } = useStream(store.read());
-    const { order } = command.data;
+    const helper = new MarketCommandDispatcherHelper({ store, source });
+    const order = command.data.order;
 
-    const [sellerState] = await replay(UserReducer(order.seller));
-    if (sellerState === undefined) {
-      throw new MarketCommandError("UserNotExistsError", order.seller);
-    }
+    // Validate seller.
+    await helper.getUserOrThrow(order.seller);
 
-    const [buyerState] = await replay(UserReducer(order.buyer));
-    if (buyerState === undefined) {
-      throw new MarketCommandError("UserNotExistsError", order.buyer);
-    }
-
-    for (const item of order.items) {
-      const [itemState] = await replay(ItemReducer(item));
-      if (itemState === undefined) {
-        throw new MarketCommandError("ItemNotExistsError", item);
-      }
-    }
-
-    if (ccy.sub(buyerState.balance, order.amount).value < 0) {
+    // Validate buyer.
+    const buyer = await helper.getUserOrThrow(order.buyer);
+    if (ccy.sub(buyer.balance, order.amount).value < 0) {
       throw new MarketCommandError("UserBalanceInsufficient", order.buyer);
+    }
+
+    // Validate items.
+    for (const item of order.items) {
+      await helper.getItemOrThrow(item);
     }
 
     yield createMarketEvent("OrderConfirmed", {

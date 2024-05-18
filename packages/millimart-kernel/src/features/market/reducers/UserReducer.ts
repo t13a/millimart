@@ -1,13 +1,18 @@
-import { Reducer } from "../../../utils";
+import { Reducer2 } from "../../../utils";
 import { MarketEvent } from "../MarketEventSchema";
 import { User, UserRef } from "../values";
 
-export const UserReducer =
-  ({ userId }: UserRef): Reducer<User, MarketEvent> =>
-  (state, event) => {
+export class UserReducer implements Reducer2<User | undefined, MarketEvent> {
+  constructor(private userRef: UserRef) {}
+
+  init(): User | undefined {
+    return undefined;
+  }
+
+  next(state: User | undefined, event: MarketEvent): User | undefined {
     switch (event.type) {
       case "internal.millimart.market.v1.UserEntered":
-        if (event.data.user.id !== userId) {
+        if (event.data.user.id !== this.userRef.userId) {
           return state;
         }
         if (state !== undefined) {
@@ -15,7 +20,7 @@ export const UserReducer =
         }
         return event.data.user;
       case "internal.millimart.market.v1.UserLeft":
-        if (event.data.userId !== userId) {
+        if (event.data.userId !== this.userRef.userId) {
           return state;
         }
         if (state === undefined) {
@@ -24,4 +29,5 @@ export const UserReducer =
         return undefined;
     }
     return state;
-  };
+  }
+}

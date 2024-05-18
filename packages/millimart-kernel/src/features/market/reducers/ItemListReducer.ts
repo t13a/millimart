@@ -1,14 +1,18 @@
+import { Reducer2 } from "../../../utils";
 import { MarketEvent } from "../MarketEventSchema";
 import { ItemList } from "../values";
 
-export const ItemListReducer =
-  () =>
-  (state: ItemList | undefined, event: MarketEvent): ItemList | undefined => {
+export class ItemListReducer implements Reducer2<ItemList, MarketEvent> {
+  init(): ItemList {
+    return [];
+  }
+
+  next(state: ItemList, event: MarketEvent): ItemList {
     switch (event.type) {
       case "internal.millimart.market.v1.ItemRegistered":
-        state = state ?? [];
-        const isFound = !!state.find((item) => item.id === event.data.item.id);
-        return isFound ? state : [...state, event.data.item];
+        const found = !!state.find((item) => item.id === event.data.item.id);
+        return found ? state : [...state, event.data.item];
     }
     return state;
-  };
+  }
+}

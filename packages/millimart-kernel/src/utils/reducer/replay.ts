@@ -1,8 +1,10 @@
 import { ReplayError } from "./ReplayError";
 import { Reducer } from "./types";
 
+/** @deprecated */
 export type ReplayResult<S, E> = [S | undefined, E | undefined];
 
+/** @deprecated */
 export const replay = async <S, E>(
   reducer: Reducer<S, E>,
   state: S | undefined = undefined,

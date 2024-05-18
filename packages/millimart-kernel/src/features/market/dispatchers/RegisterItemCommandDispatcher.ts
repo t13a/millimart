@@ -1,20 +1,20 @@
-import { useStream } from "../../../utils";
 import { MarketCommandError } from "../MarketCommandError";
 import { RegisterItemCommand } from "../MarketCommandSchema";
-import { ItemReducer } from "../reducers";
 import { createMarketEvent } from "../rules";
+import { MarketCommandDispatcherHelper } from "./MarketCommandDispatcherHelper";
 import { MarketCommandDispatcher } from "./types";
 
 export const RegisterItemCommandDispatcher: MarketCommandDispatcher<
   RegisterItemCommand
 > = ({ store, source }) =>
   async function* (command) {
-    const { replay: replay2 } = useStream(store.read());
-    const { id: itemId } = command.data.item;
+    const helper = new MarketCommandDispatcherHelper({ store, source });
+    const itemRef = { itemId: command.data.item.id };
+    const item = await helper.getItem(itemRef);
 
-    const [item] = await replay2(ItemReducer({ itemId }));
+    // Validate item.
     if (item !== undefined) {
-      throw new MarketCommandError("ItemAlreadyExistsError", { itemId });
+      throw new MarketCommandError("ItemAlreadyExistsError", itemRef);
     }
 
     yield createMarketEvent("ItemRegistered", {

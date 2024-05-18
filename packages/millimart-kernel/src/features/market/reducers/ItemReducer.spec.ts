@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { reduce } from "../../../utils";
 import { MarketEvent } from "../MarketEventSchema";
 import { createMarketEvent } from "../rules";
 import { ItemReducer } from "./ItemReducer";
@@ -33,9 +34,9 @@ const invalidEvents: MarketEvent[] = [
 
 describe("ItemReducer", () => {
   it("replays the item state from the events", () => {
-    const state = validEvents.reduce(
-      ItemReducer({ itemId: "broccoli" }),
-      undefined,
+    const { state } = reduce(
+      new ItemReducer({ itemId: "broccoli" }),
+      validEvents,
     );
     expect(state).toStrictEqual({
       id: "broccoli",
@@ -45,14 +46,14 @@ describe("ItemReducer", () => {
   });
 
   it("returns nothing if item is not registered", () => {
-    const state = [].reduce(ItemReducer({ itemId: "broccoli" }), undefined);
+    const { state } = reduce(new ItemReducer({ itemId: "broccoli" }), []);
     expect(state).toStrictEqual(undefined);
   });
 
   it("ignores the event if the item is already registered", () => {
-    const state = invalidEvents.reduce(
-      ItemReducer({ itemId: "broccoli" }),
-      undefined,
+    const { state } = reduce(
+      new ItemReducer({ itemId: "broccoli" }),
+      invalidEvents,
     );
     expect(state).toStrictEqual({
       id: "broccoli",
