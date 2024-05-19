@@ -1,6 +1,6 @@
 import EventEmitter from "events";
-import { EventStore } from "..";
-import { EventHandler } from "../../eventbus";
+import { Channel } from "../channel";
+import { EventStore } from "../types";
 
 export interface EventBus2<E> {
   readonly channels: ReadonlyMap<string, Channel<E>>;
@@ -63,21 +63,3 @@ export type SubscriptionResend =
 export type SubscriptionStatus = {
   lastEventId?: string;
 };
-
-export type ChannelEventMap<E> = {
-  send: [event: E];
-  receive: [event: E];
-};
-
-export interface Channel<E> extends SendOnlyChannel<E>, ReceiveOnlyChannel<E> {}
-
-export interface SendOnlyChannel<E> extends EventEmitter<ChannelEventMap<E>> {
-  send(event: E): Promise<void>;
-  sink: string;
-}
-
-export interface ReceiveOnlyChannel<E>
-  extends EventEmitter<ChannelEventMap<E>> {
-  receive(handler: EventHandler<E>): Promise<boolean>;
-  sink: string;
-}
