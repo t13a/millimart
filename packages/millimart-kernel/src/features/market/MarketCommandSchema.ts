@@ -39,3 +39,15 @@ export const MarketCommandSchema = z.union([
   RegisterItemCommandSchema,
   ConfirmOrderCommandSchema,
 ]);
+
+export type MarketCommandTypeName =
+  MarketCommand["type"] extends `${typeof MarketCommandTypePrefix}${infer TypeName}`
+    ? TypeName
+    : never;
+
+export type MarketCommandMap = {
+  [TypeName in MarketCommandTypeName]: Extract<
+    MarketCommand,
+    { type: `${typeof MarketCommandTypePrefix}${TypeName}` }
+  >;
+};

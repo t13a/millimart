@@ -1,17 +1,13 @@
-import { MarketCommand, MarketCommandTypePrefix } from "../MarketCommandSchema";
-
-export type MarketCommandTypeName =
-  MarketCommand["type"] extends `${typeof MarketCommandTypePrefix}${infer TypeName}`
-    ? TypeName
-    : never;
-
-export type MarketCommandByTypeName<TypeName extends MarketCommandTypeName> =
-  MarketCommand & { type: `${typeof MarketCommandTypePrefix}${TypeName}` };
+import {
+  MarketCommandMap,
+  MarketCommandTypeName,
+  MarketCommandTypePrefix,
+} from "../MarketCommandSchema";
 
 export const createMarketCommand = <TypeName extends MarketCommandTypeName>(
   typeName: TypeName,
-  data: MarketCommandByTypeName<TypeName>["data"],
-): MarketCommandByTypeName<TypeName> => {
+  data: MarketCommandMap[TypeName]["data"],
+) => {
   const type = `${MarketCommandTypePrefix}${typeName}`;
-  return { type, data } as any; // FIXME
+  return { type, data } as MarketCommandMap[TypeName];
 };
