@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { SubscriptionError } from ".";
 import { InMemoryEventStore } from "..";
 import { InMemoryEventBus2 } from "./InMemoryEventBus2";
-import { SequentialSubscriptionIdFactory } from "./SequentialSubscriptionIdFactory";
 
 type TestEvent = {
   id: string;
@@ -109,7 +108,6 @@ describe("InMemoryEventBus2", () => {
         const bus = new InMemoryEventBus2({
           source,
           store,
-          subscriptionIdFactory: SequentialSubscriptionIdFactory,
         });
 
         const subscription = await bus.subscriptions.subscribe({
@@ -117,7 +115,7 @@ describe("InMemoryEventBus2", () => {
         });
 
         expect(subscription).toStrictEqual({
-          id: "1",
+          id: subscription.id,
           sink: "/consumers/1",
           config: {},
           status: {},
@@ -129,7 +127,6 @@ describe("InMemoryEventBus2", () => {
         const bus = new InMemoryEventBus2({
           source,
           store,
-          subscriptionIdFactory: SequentialSubscriptionIdFactory,
         });
 
         const subscription = await bus.subscriptions.subscribe({
@@ -141,7 +138,7 @@ describe("InMemoryEventBus2", () => {
         });
 
         expect(subscription).toStrictEqual({
-          id: "1",
+          id: subscription.id,
           sink: "/consumers/1",
           config: {
             param1: "abc",
@@ -157,7 +154,6 @@ describe("InMemoryEventBus2", () => {
       const bus = new InMemoryEventBus2({
         source,
         store,
-        subscriptionIdFactory: SequentialSubscriptionIdFactory,
       });
 
       const e1: TestEvent = { id: "1", data: "A" };
@@ -173,7 +169,7 @@ describe("InMemoryEventBus2", () => {
       });
 
       expect(subscription).toStrictEqual({
-        id: "1",
+        id: subscription.id,
         sink: "/consumers/1",
         config: {},
         status: {},
@@ -185,7 +181,6 @@ describe("InMemoryEventBus2", () => {
       const bus = new InMemoryEventBus2({
         source,
         store,
-        subscriptionIdFactory: SequentialSubscriptionIdFactory,
       });
 
       const e1: TestEvent = { id: "1", data: "A" };
@@ -201,7 +196,7 @@ describe("InMemoryEventBus2", () => {
       });
 
       expect(subscription).toStrictEqual({
-        id: "1",
+        id: subscription.id,
         sink: "/consumers/1",
         config: {},
         status: {
@@ -215,7 +210,6 @@ describe("InMemoryEventBus2", () => {
       const bus = new InMemoryEventBus2({
         source,
         store,
-        subscriptionIdFactory: SequentialSubscriptionIdFactory,
       });
 
       const e1: TestEvent = { id: "1", data: "A" };
@@ -231,7 +225,7 @@ describe("InMemoryEventBus2", () => {
       });
 
       expect(subscription).toStrictEqual({
-        id: "1",
+        id: subscription.id,
         sink: "/consumers/1",
         config: {},
         status: {
@@ -245,7 +239,6 @@ describe("InMemoryEventBus2", () => {
       const bus = new InMemoryEventBus2({
         source,
         store,
-        subscriptionIdFactory: SequentialSubscriptionIdFactory,
       });
 
       const e1: TestEvent = { id: "1", data: "A" };

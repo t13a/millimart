@@ -1,11 +1,10 @@
+import { randomUUID } from "crypto";
 import { SubscriptionError } from ".";
 import { EventStore } from "..";
 import { CallbackChannel, Channel } from "../channel";
 import { InMemorySubscriptionManager } from "./InMemorySubscriptionManager";
-import { RandomSubscriptionIdFactory } from "./RandomSubscriptionIdFactory";
 import {
   EventBus2,
-  SubscriptionIdFactory,
   SubscriptionManager,
   SubscriptionResend,
   SubscriptionStatus,
@@ -14,7 +13,6 @@ import {
 export type InMemoryEventBus2Props<E> = {
   source: string;
   store: EventStore<E>;
-  subscriptionIdFactory?: SubscriptionIdFactory;
 };
 
 export class InMemoryEventBus2<E> implements EventBus2<E> {
@@ -39,9 +37,12 @@ export class InMemoryEventBus2<E> implements EventBus2<E> {
       }
     });
 
-    this.generateSubscriptionId = this.props.subscriptionIdFactory
-      ? this.props.subscriptionIdFactory(this._subscriptions)
-      : RandomSubscriptionIdFactory(this._subscriptions);
+    this.generateSubscriptionId = () => {
+      const id = randomUUID().toString();
+      return this._subscriptions.hasById(id)
+        ? this.generateSubscriptionId()
+        : id;
+    };
   }
 
   get channels(): ReadonlyMap<string, Channel<E>> {

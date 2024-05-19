@@ -32,10 +32,6 @@ export interface ReadonlySubscriptionManager extends Iterable<Subscription> {
   hasBySink(sink: string): boolean;
 }
 
-export type SubscriptionIdFactory = (
-  subscriptions: ReadonlySubscriptionManager,
-) => () => string;
-
 export type Subscription = {
   id: string;
   sink: string;
