@@ -1,6 +1,6 @@
 import { MarketCommandError } from "../MarketCommandError";
 import { RegisterUserCommand } from "../MarketCommandSchema";
-import { createMarketEvent } from "../rules";
+import { createMarketEvent, toUserRef } from "../rules";
 import { MarketCommandDispatcherHelper } from "./MarketCommandDispatcherHelper";
 import { MarketCommandDispatcher } from "./types";
 
@@ -9,12 +9,14 @@ export const RegisterUserCommandDispatcher: MarketCommandDispatcher<
 > = ({ store, source }) =>
   async function* (command) {
     const helper = new MarketCommandDispatcherHelper({ store, source });
-    const userRef = { userId: command.data.user.id };
-    const user = await helper.getUser(userRef);
+    const user = await helper.getUser(command.data);
 
     // Validate user.
     if (user !== undefined) {
-      throw new MarketCommandError("UserAlreadyExistsError", userRef);
+      throw new MarketCommandError(
+        "UserAlreadyExistsError",
+        toUserRef(command.data),
+      );
     }
 
     yield createMarketEvent("UserEntered", {
