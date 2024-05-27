@@ -16,7 +16,6 @@ describe("CallbackChannel", () => {
       const channel = new CallbackChannel({
         receiveCallback: () => events.shift(),
         sendCallback: (e) => events.push(e),
-        sink: "/",
       });
 
       const result: TestEvent[] = [];
@@ -33,7 +32,6 @@ describe("CallbackChannel", () => {
         sendCallback: (e) => {
           events.push(e);
         },
-        sink: "/",
       });
 
       const result: TestEvent[] = [];
@@ -53,7 +51,6 @@ describe("CallbackChannel", () => {
       const channel = new CallbackChannel({
         receiveCallback: () => events.shift(),
         sendCallback: (e) => events.push(e),
-        sink: "/",
       });
 
       await channel.send({ type: "baz", data: {} });
