@@ -2,7 +2,6 @@ import { EventEmitter } from "events";
 import { Channel, ChannelEventMap, Consumer, Producer } from "./types";
 
 export type CallbackChannelProps<E> = {
-  sink: string;
   receiveCallback: Producer<E | undefined>;
   sendCallback: Consumer<E>;
 };
@@ -13,10 +12,6 @@ export class CallbackChannel<E>
 {
   constructor(private props: CallbackChannelProps<E>) {
     super({ captureRejections: true });
-  }
-
-  get sink(): string {
-    return this.props.sink;
   }
 
   async receive(consumer: Consumer<E>): Promise<boolean> {

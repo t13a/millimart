@@ -8,13 +8,11 @@ export type ChannelEventMap<E> = {
 export interface Channel<E> extends SendOnlyChannel<E>, ReceiveOnlyChannel<E> {}
 
 export interface SendOnlyChannel<E> extends EventEmitter<ChannelEventMap<E>> {
-  readonly sink: string;
   send(event: E): Promise<void>;
 }
 
 export interface ReceiveOnlyChannel<E>
   extends EventEmitter<ChannelEventMap<E>> {
-  readonly sink: string;
   receive(consumer: Consumer<E>): Promise<boolean>;
 }
 
