@@ -1,5 +1,5 @@
 import { ReduceError } from "./ReduceError";
-import { Reducer2 } from "./types";
+import { Reducer } from "./types";
 
 export type ReduceResult<S, E> = {
   state: S;
@@ -7,17 +7,17 @@ export type ReduceResult<S, E> = {
 };
 
 export function reduce<S, E>(
-  reducer: Reducer2<S, E>,
+  reducer: Reducer<S, E>,
   events: Iterable<E>,
 ): ReduceResult<S, E>;
 
 export function reduce<S, E>(
-  reducer: Reducer2<S, E>,
+  reducer: Reducer<S, E>,
   events: AsyncIterable<E>,
 ): Promise<ReduceResult<S, E>>;
 
 export function reduce<S, E>(
-  reducer: Reducer2<S, E>,
+  reducer: Reducer<S, E>,
   events: Iterable<E> | AsyncIterable<E>,
 ): ReduceResult<S, E> | Promise<ReduceResult<S, E>> {
   const result: ReduceResult<S, E> = { state: reducer.init() };
@@ -39,7 +39,7 @@ export function reduce<S, E>(
 
 const tryNext = <S, E>(
   result: ReduceResult<S, E>,
-  reducer: Reducer2<S, E>,
+  reducer: Reducer<S, E>,
   nextEvent: E,
 ): void => {
   let nextState: S;

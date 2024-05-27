@@ -1,8 +1,8 @@
-import { Reducer2 } from "../../../utils";
+import { Reducer } from "../../../utils";
 import { MarketEvent } from "../MarketEventSchema";
 import { ItemList } from "../values";
 
-export class ItemListReducer implements Reducer2<ItemList, MarketEvent> {
+export class ItemListReducer implements Reducer<ItemList, MarketEvent> {
   init(): ItemList {
     return [];
   }

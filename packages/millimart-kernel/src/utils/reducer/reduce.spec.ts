@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ReduceError } from "./ReduceError";
 import { reduce } from "./reduce";
-import { Reducer2 } from "./types";
+import { Reducer } from "./types";
 
 type Accumulation = number | undefined;
 
@@ -10,7 +10,7 @@ type AccumulationEvent = {
   data: number;
 };
 
-class AccumulationReducer implements Reducer2<Accumulation, AccumulationEvent> {
+class AccumulationReducer implements Reducer<Accumulation, AccumulationEvent> {
   constructor(private initState: Accumulation = undefined) {}
 
   init(): Accumulation {

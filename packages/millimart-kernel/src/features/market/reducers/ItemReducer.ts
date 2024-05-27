@@ -1,8 +1,8 @@
-import { Reducer2 } from "../../../utils";
+import { Reducer } from "../../../utils";
 import { MarketEvent } from "../MarketEventSchema";
 import { Item, ItemRef } from "../values";
 
-export class ItemReducer implements Reducer2<Item | undefined, MarketEvent> {
+export class ItemReducer implements Reducer<Item | undefined, MarketEvent> {
   constructor(private itemRef: ItemRef) {}
 
   init(): Item | undefined {
