@@ -1,5 +1,6 @@
 import { EventBus, Subscription, Unsubscribe } from "./types";
 
+/** @deprecated */
 export class InMemoryEventBus<T, I = undefined> implements EventBus<T, I> {
   private subscriptions = new Set<Subscription<T, I>>();
 

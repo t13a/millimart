@@ -1,19 +1,23 @@
 import { EventBus, EventChannel, EventHandler, Unsubscribe } from "./types";
 
+/** @deprecated */
 export type EventBusAdapterOptions<T, S = undefined> = {
   info?: S;
   sendPredicate?: EventBusAdapterSendPredicate<T, S>;
   receivePredicate?: EventBusAdapterReceivePredicate<T>;
 };
 
+/** @deprecated */
 export type EventBusAdapterSendPredicate<T, S = undefined> = (context: {
   event: T;
   self: boolean;
   target?: S;
 }) => boolean;
 
+/** @deprecated */
 export type EventBusAdapterReceivePredicate<T> = (event: T) => boolean;
 
+/** @deprecated */
 export class EventBusAdapter<T, S = undefined> implements EventChannel<T> {
   private receiveHandler?: EventHandler<T>;
   private unsubscrive?: Unsubscribe;
