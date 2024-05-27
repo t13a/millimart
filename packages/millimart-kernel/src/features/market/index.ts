@@ -1,4 +1,3 @@
-export * from "./MarketAgent";
 export * from "./MarketCommandError";
 export * from "./MarketCommandSchema";
 export * from "./MarketEventSchema";
