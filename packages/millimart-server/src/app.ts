@@ -9,6 +9,7 @@ import {
 import {
   CloudEventDebugRouter,
   HttpSubscriptionRouter,
+  MarketCommandRouter,
   SubscriptionManagerRouter,
 } from "./routers";
 import { errorHandler } from "./utils/errorHandler";
@@ -22,6 +23,13 @@ const marketEventStore = new InMemoryEventStore<mkt.MarketEvent>(
   (event) => event.id,
 );
 const source = "/market";
+app.use(
+  "/market",
+  MarketCommandRouter({
+    source,
+    store: marketEventStore,
+  }),
+);
 app.use(
   "/market/events",
   CloudEventDebugRouter<mkt.MarketEvent>({
