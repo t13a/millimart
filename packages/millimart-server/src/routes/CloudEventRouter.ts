@@ -6,6 +6,7 @@ import {
   CloudEventEncoder,
   CloudEventSchema,
   EventStore,
+  EventStoreHelper,
   EventStoreReadOptions,
   fromAsync,
 } from "millimart-kernel";
@@ -85,8 +86,8 @@ export const CloudEventRouter = <CE extends CloudEvent>({
       }),
     }),
     async (req, res) => {
-      const eventId = req.params.eventId;
-      const event = await store.readOne(eventId);
+      const helper = new EventStoreHelper(store);
+      const event = await helper.readOne(req.params.eventId);
       if (event === undefined) {
         return res.status(400).send(event);
       }
