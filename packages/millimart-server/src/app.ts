@@ -2,7 +2,7 @@ import cors from "cors";
 import express from "express";
 import "express-async-errors";
 import { InMemoryEventStore, mkt } from "millimart-kernel";
-import { CloudEventRouter } from "./routes/CloudEventRouter";
+import { CloudEventDebugRouter } from "./routers";
 import { errorHandler } from "./utils/errorHandler";
 
 const app = express();
@@ -15,8 +15,8 @@ const marketEventStore = new InMemoryEventStore<mkt.MarketEvent>(
 );
 const source = "/market";
 app.use(
-  source,
-  CloudEventRouter<mkt.MarketEvent>({
+  "/market/events",
+  CloudEventDebugRouter<mkt.MarketEvent>({
     store: marketEventStore,
     schema: mkt.MarketEventSchema,
     source,

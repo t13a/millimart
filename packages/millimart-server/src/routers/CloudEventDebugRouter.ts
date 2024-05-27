@@ -18,26 +18,25 @@ import { z } from "zod";
 import { processRequest, validateRequest } from "zod-express-middleware";
 
 export type CloudEventRouterProps<CE extends CloudEvent> = {
-  store: EventStore<CE>;
   schema: z.ZodType<CE>;
   source: string;
+  store: EventStore<CE>;
 };
 CloudEventSchema;
 
-export const CloudEventRouter = <CE extends CloudEvent>({
-  store,
+export const CloudEventDebugRouter = <CE extends CloudEvent>({
   schema,
+  store,
   source,
 }: CloudEventRouterProps<CE>): Router => {
   const router = express.Router();
 
-  const internalSchema = schema.and(
+  const sourceSpecificSchema = schema.and(
     z.object({ source: z.literal(source) }).passthrough(),
   );
-
-  router.post("/events", express.text({ type: "*/*" }), async (req, res) => {
+  router.post("/", express.text({ type: "*/*" }), async (req, res) => {
     const result = tryCatchIntoResult(() =>
-      new CloudEventDecoder<CE>(internalSchema).fromMessage(req),
+      new CloudEventDecoder<CE>(sourceSpecificSchema).fromMessage(req),
     );
     if (!result.ok) {
       return res.status(415).send(result.err);
@@ -47,7 +46,7 @@ export const CloudEventRouter = <CE extends CloudEvent>({
   });
 
   router.get(
-    "/events",
+    "/",
     processRequest({
       query: z.object({
         direction: z
@@ -79,7 +78,7 @@ export const CloudEventRouter = <CE extends CloudEvent>({
   );
 
   router.get(
-    "/events/:eventId",
+    "/:eventId",
     validateRequest({
       params: z.object({
         eventId: z.string().min(1),
