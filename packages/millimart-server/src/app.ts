@@ -1,8 +1,16 @@
 import cors from "cors";
 import express from "express";
 import "express-async-errors";
-import { InMemoryEventStore, mkt } from "millimart-kernel";
-import { CloudEventDebugRouter } from "./routers";
+import {
+  InMemoryEventStore,
+  InMemorySubscriptionManager,
+  mkt,
+} from "millimart-kernel";
+import {
+  CloudEventDebugRouter,
+  HttpSubscriptionRouter,
+  SubscriptionManagerRouter,
+} from "./routers";
 import { errorHandler } from "./utils/errorHandler";
 
 const app = express();
@@ -20,6 +28,26 @@ app.use(
     store: marketEventStore,
     schema: mkt.MarketEventSchema,
     source,
+  }),
+);
+
+const marketSubscriptionManager =
+  new InMemorySubscriptionManager<mkt.MarketEvent>({
+    store: marketEventStore,
+  });
+app.use(
+  "/events",
+  HttpSubscriptionRouter<mkt.MarketEvent>({
+    headersCallback: () => {
+      return { "Content-Type": "application/cloudevents+json" };
+    },
+    manager: marketSubscriptionManager,
+  }),
+);
+app.use(
+  "/subscriptions",
+  SubscriptionManagerRouter<mkt.MarketEvent>({
+    manager: marketSubscriptionManager,
   }),
 );
 
