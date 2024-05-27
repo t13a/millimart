@@ -1,6 +1,3 @@
-export * from "./InMemoryEventBus2";
+export * from "./InMemorySubscription";
 export * from "./InMemorySubscriptionManager";
-export * from "./RandomSubscriptionIdFactory";
-export * from "./SequentialSubscriptionIdFactory";
-export * from "./SubscriptionError";
 export * from "./types";

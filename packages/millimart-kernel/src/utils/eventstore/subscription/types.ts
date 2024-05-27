@@ -1,61 +1,49 @@
 import EventEmitter from "events";
-import { Channel } from "../channel";
-import { EventStore } from "../types";
+import { EventFilter } from "../EventStoreHelper";
+import { Consumer } from "../channel";
 
-export interface EventBus2<E> {
-  readonly channels: ReadonlyMap<string, Channel<E>>;
-  readonly source: string;
-  readonly store: EventStore<E>;
-  readonly subscriptions: SubscriptionManager;
-}
-
-export type SubscriptionManagerEventMap = {
-  setResend: [subscription: Subscription];
-  setStatus: [subscription: Subscription];
-  subscribe: [subscription: Subscription];
-  unsubscribe: [id: string];
+export type SubscriptionManagerEventMap<E> = {
+  create: [subscription: Subscription<E>];
+  delete: [subscription: Subscription<E>];
 };
 
-export interface SubscriptionManager
-  extends ReadonlySubscriptionManager,
-    EventEmitter<SubscriptionManagerEventMap> {
-  setResend(id: string, resend: SubscriptionResend): Promise<Subscription>;
-  setStatus(id: string, status: SubscriptionStatus): Subscription;
-  subscribe(request: SubscriptionRequest): Promise<Subscription>;
-  unsubscribe(id: string): void;
+export interface SubscriptionManager<E>
+  extends EventEmitter<SubscriptionManagerEventMap<E>>,
+    Iterable<Subscription<E>> {
+  create(request?: SubscriptionRequest<E>): Subscription<E>;
+  delete(id: string): boolean;
+  get(id: string): Subscription<E> | undefined;
+  has(id: string): boolean;
 }
 
-export interface ReadonlySubscriptionManager extends Iterable<Subscription> {
-  getById(id: string): Subscription | undefined;
-  getBySink(sink: string): Subscription | undefined;
-  hasById(id: string): boolean;
-  hasBySink(sink: string): boolean;
+export type SubscriptionEventMap<E> = {
+  filter: [filter: EventFilter<E>];
+  position: [position: SubscriptionPosition];
+};
+
+export interface Subscription<E>
+  extends EventEmitter<SubscriptionEventMap<E>>,
+    AsyncIterable<E> {
+  readonly id: string;
+  readonly filter: EventFilter<E>;
+  readonly position: SubscriptionPosition;
+  receive(consumer: Consumer<E>): Promise<boolean>;
+  update(request: SubscriptionRequest<E>): void;
 }
 
-export type Subscription = {
-  id: string;
-  sink: string;
-  config: SubscriptionConfig;
-  status: SubscriptionStatus;
+export type SubscriptionRequest<E> = {
+  readonly filter?: EventFilter<E>;
+  readonly position?: SubscriptionPosition;
 };
 
-export type SubscriptionRequest = {
-  sink: string;
-  config?: SubscriptionConfig;
-  resend?: SubscriptionResend;
-};
-
-export type SubscriptionConfig = Record<string, unknown>;
-
-export type SubscriptionResend =
+export type SubscriptionPosition =
   | {
-      from: "First";
+      readonly from: "Start";
     }
   | {
-      from: "Next";
-      lastEventId?: string;
+      readonly from: "Next";
+      readonly lastEventId: string;
+    }
+  | {
+      readonly from: "End";
     };
-
-export type SubscriptionStatus = {
-  lastEventId?: string;
-};

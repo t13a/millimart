@@ -1,7 +1,6 @@
 import { EventEmitter } from "events";
 import { ZodType } from "zod";
-import { EventHandler } from "../../../utils/eventbus";
-import { Channel, ChannelEventMap } from "../../eventstore/subscription";
+import { Channel, ChannelEventMap, Consumer } from "../../eventstore";
 import { CloudEvent } from "../CloudEventSchema";
 import { CloudEventDecoder } from "./CloudEventDecoder";
 import {
@@ -43,19 +42,18 @@ export class HttpClientChannel<
   private receivedEvents: CE[] = [];
 
   constructor(
-    readonly sink: string,
     private url: string,
     private options?: HttpClientChannelOptions<CE, Schema>,
   ) {
     super({ captureRejections: true });
   }
 
-  async receive(handler: EventHandler<CE>): Promise<boolean> {
+  async receive(consumer: Consumer<CE>): Promise<boolean> {
     const event = this.receivedEvents.shift();
     if (!event) {
       return false;
     }
-    await handler(event);
+    await consumer(event);
     this.emit("receive", event);
     return true;
   }
