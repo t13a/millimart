@@ -1,4 +1,4 @@
-import { ItemRef, UserRef } from "./values";
+import { ItemRef, UserRef } from "../values";
 
 export type MarketCommandErrorDataMap = {
   ItemAlreadyExistsError: ItemRef;

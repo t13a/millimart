@@ -1,14 +1,14 @@
+import { createMarketEvent, toUserRef } from "../../rules";
 import { MarketCommandError } from "../MarketCommandError";
+import { MarketCommandHelper } from "../MarketCommandHelper";
 import { RegisterUserCommand } from "../MarketCommandSchema";
-import { createMarketEvent, toUserRef } from "../rules";
-import { MarketCommandDispatcherHelper } from "./MarketCommandDispatcherHelper";
-import { MarketCommandDispatcher } from "./types";
+import { MarketCommandHandler } from "./types";
 
-export const RegisterUserCommandDispatcher: MarketCommandDispatcher<
+export const RegisterUserCommandHandler: MarketCommandHandler<
   RegisterUserCommand
 > = ({ store, source }) =>
   async function* (command) {
-    const helper = new MarketCommandDispatcherHelper({ store, source });
+    const helper = new MarketCommandHelper({ store, source });
     const user = await helper.getUser(command.data);
 
     // Validate user.

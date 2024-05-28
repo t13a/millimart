@@ -1,12 +1,12 @@
 import { reduce } from "../../../utils";
-import { MarketCommandError } from "../MarketCommandError";
 import { ItemReducer, UserReducer } from "../reducers";
 import { ItemRefLike, UserRefLike, toItemRef, toUserRef } from "../rules";
 import { Item, ItemRef, User, UserRef } from "../values";
-import { MarketCommandDispatcherProps } from "./types";
+import { MarketCommandError } from "./MarketCommandError";
+import { MarketCommandHandlerProps } from "./handlers/types";
 
-export class MarketCommandDispatcherHelper {
-  constructor(private props: MarketCommandDispatcherProps) {}
+export class MarketCommandHelper {
+  constructor(private props: MarketCommandHandlerProps) {}
 
   async getItem(itemRef: ItemRef | ItemRefLike): Promise<Item | undefined> {
     const { state } = await reduce(

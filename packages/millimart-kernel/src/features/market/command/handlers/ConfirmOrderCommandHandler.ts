@@ -1,15 +1,15 @@
-import { ccy } from "../../..";
+import { ccy } from "../../../..";
+import { createMarketEvent } from "../../rules";
 import { MarketCommandError } from "../MarketCommandError";
+import { MarketCommandHelper } from "../MarketCommandHelper";
 import { ConfirmOrderCommand } from "../MarketCommandSchema";
-import { createMarketEvent } from "../rules";
-import { MarketCommandDispatcherHelper } from "./MarketCommandDispatcherHelper";
-import { MarketCommandDispatcher } from "./types";
+import { MarketCommandHandler } from "./types";
 
-export const ConfirmOrderCommandDispatcher: MarketCommandDispatcher<
+export const ConfirmOrderCommandHandler: MarketCommandHandler<
   ConfirmOrderCommand
 > = ({ store, source }) =>
   async function* (command) {
-    const helper = new MarketCommandDispatcherHelper({ store, source });
+    const helper = new MarketCommandHelper({ store, source });
     const order = command.data.order;
 
     // Validate seller.

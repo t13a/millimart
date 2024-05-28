@@ -1,11 +1,11 @@
-import { EventStore, fromAsync } from "../../utils";
+import { EventStore, fromAsync } from "../../../utils";
+import { MarketEvent } from "../MarketEventSchema";
 import { MarketCommand } from "./MarketCommandSchema";
-import { MarketEvent } from "./MarketEventSchema";
 import {
-  ConfirmOrderCommandDispatcher,
-  RegisterItemCommandDispatcher,
-  RegisterUserCommandDispatcher,
-} from "./dispatchers";
+  ConfirmOrderCommandHandler,
+  RegisterItemCommandHandler,
+  RegisterUserCommandHandler,
+} from "./handlers";
 
 export type MarketCommandServiceProps = {
   source: string;
@@ -18,11 +18,11 @@ export class MarketCommandService {
   dispatch(command: MarketCommand): AsyncIterable<MarketEvent> {
     switch (command.type) {
       case "internal.millimart.market.v1.ConfirmOrder":
-        return ConfirmOrderCommandDispatcher(this.props)(command);
+        return ConfirmOrderCommandHandler(this.props)(command);
       case "internal.millimart.market.v1.RegisterItem":
-        return RegisterItemCommandDispatcher(this.props)(command);
+        return RegisterItemCommandHandler(this.props)(command);
       case "internal.millimart.market.v1.RegisterUser":
-        return RegisterUserCommandDispatcher(this.props)(command);
+        return RegisterUserCommandHandler(this.props)(command);
     }
   }
 

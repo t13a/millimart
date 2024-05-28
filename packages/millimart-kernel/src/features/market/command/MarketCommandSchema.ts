@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ItemSchema, OrderSchema, UserSchema } from "./values";
+import { ItemSchema, OrderSchema, UserSchema } from "../values";
 
 export const MarketCommandTypePrefix = "internal.millimart.market.v1.";
 
