@@ -6,9 +6,11 @@ import {
   InMemorySubscriptionManager,
   mkt,
 } from "millimart-kernel";
+import { z } from "zod";
 import {
   EventStoreRouter,
   MarketCommandRouter,
+  SubscribeRouter,
   SubscriptionManagerRouter,
 } from "./routers";
 import { errorHandler } from "./utils/errorHandler";
@@ -45,11 +47,8 @@ const marketSubscriptionManager =
     store: marketEventStore,
   });
 app.use(
-  "/events",
-  HttpSubscriptionRouter<mkt.MarketEvent>({
-    headersCallback: () => {
-      return { "Content-Type": "application/cloudevents+json" };
-    },
+  "/subscribe",
+  SubscribeRouter<mkt.MarketEvent>({
     manager: marketSubscriptionManager,
   }),
 );
