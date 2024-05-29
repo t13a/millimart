@@ -1,4 +1,3 @@
-export * from "./CloudEventDebugRouter";
-export * from "./HttpSubscriptionRouter";
+export * from "./EventStoreRouter";
 export * from "./MarketCommandRouter";
 export * from "./SubscriptionManagerRouter";

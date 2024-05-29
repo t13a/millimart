@@ -7,8 +7,7 @@ import {
   mkt,
 } from "millimart-kernel";
 import {
-  CloudEventDebugRouter,
-  HttpSubscriptionRouter,
+  EventStoreRouter,
   MarketCommandRouter,
   SubscriptionManagerRouter,
 } from "./routers";
@@ -32,9 +31,11 @@ app.use(
 );
 app.use(
   "/market/events",
-  CloudEventDebugRouter<mkt.MarketEvent>({
+  EventStoreRouter<mkt.MarketEvent>({
     store: marketEventStore,
-    schema: mkt.MarketEventSchema,
+    schema: mkt.MarketEventSchema.and(
+      z.object({ source: z.literal(source) }).passthrough(),
+    ),
     source,
   }),
 );

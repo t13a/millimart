@@ -3,7 +3,6 @@ import {
   CloudEvent,
   CloudEventBatchEncoder,
   CloudEventDecoder,
-  CloudEventEncoder,
   CloudEventSchema,
   EventStore,
   EventStoreHelper,
@@ -16,28 +15,24 @@ import {
 } from "option-t/PlainResult";
 import { z } from "zod";
 import { processRequest, validateRequest } from "zod-express-middleware";
+import { responseCloudEvent } from "../utils";
 
-export type CloudEventRouterProps<CE extends CloudEvent> = {
+export type EventRouterProps<CE extends CloudEvent> = {
   schema: z.ZodType<CE>;
   source: string;
   store: EventStore<CE>;
 };
 CloudEventSchema;
 
-export const CloudEventDebugRouter = <CE extends CloudEvent>({
+export const EventStoreRouter = <CE extends CloudEvent>({
   schema,
   store,
-  source,
-}: CloudEventRouterProps<CE>): Router => {
+}: EventRouterProps<CE>): Router => {
   const router = express.Router();
 
-  const sourceSpecificSchema = schema.and(
-    z.object({ source: z.literal(source) }).passthrough(),
-  );
   router.post("/", express.text({ type: "*/*" }), async (req, res) => {
-    const result = tryCatchIntoResult(() =>
-      new CloudEventDecoder<CE>(sourceSpecificSchema).fromMessage(req),
-    );
+    const decoder = new CloudEventDecoder<CE>(schema);
+    const result = tryCatchIntoResult(() => decoder.fromMessage(req));
     if (!result.ok) {
       return res.status(415).send(result.err);
     }
@@ -72,7 +67,8 @@ export const CloudEventDebugRouter = <CE extends CloudEvent>({
       if (!result.ok) {
         return res.status(400).send(result.err);
       }
-      const message = new CloudEventBatchEncoder(result.val).toMessage();
+      const encoder = new CloudEventBatchEncoder(result.val);
+      const message = encoder.toMessage();
       return res.status(200).set(message.headers).send(message.body);
     },
   );
@@ -87,11 +83,7 @@ export const CloudEventDebugRouter = <CE extends CloudEvent>({
     async (req, res) => {
       const helper = new EventStoreHelper(store);
       const event = await helper.readOne(req.params.eventId);
-      if (event === undefined) {
-        return res.status(400).send(event);
-      }
-      const message = new CloudEventEncoder(event).toMessage();
-      return res.status(200).set(message.headers).send(message.body);
+      return responseCloudEvent(event, req, res);
     },
   );
 
